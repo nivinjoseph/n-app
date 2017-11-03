@@ -14,9 +14,10 @@ class Utils // static class
                 baseUrl = baseUrl.substr(0, baseUrl.length - 1);
             if (!url.startsWith("/"))
                 url = "/" + url;
-            url = baseUrl + url;
         }
-        return params ? new route_info_1.RouteInfo(url).generateUrl(params) : url.replaceAll(" ", "");
+        else
+            baseUrl = "";
+        return params ? baseUrl + new route_info_1.RouteInfo(url).generateUrl(params) : baseUrl + url.replaceAll(" ", "");
     }
 }
 exports.Utils = Utils;

@@ -19,10 +19,10 @@ export abstract class Utils // static class
 
             if (!url.startsWith("/"))
                 url = "/" + url;
-
-            url = baseUrl + url;
         }
+        else
+            baseUrl = "";
         
-        return params ? new RouteInfo(url).generateUrl(params) : url.replaceAll(" ", "");
+        return params ? baseUrl + new RouteInfo(url).generateUrl(params) : baseUrl + url.replaceAll(" ", "");
     }
 }
