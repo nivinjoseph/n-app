@@ -25,10 +25,11 @@ export class DefaultComponentService implements ComponentService
         given(registration, "registration").ensureHasValue().ensureIsType(ViewModelRegistration);
         given(cache, "cache").ensureHasValue().ensureIsBoolean();
 
-        const component: any = {};
+        const component: any = (<any>registration.viewModel).options || {};
         component._cache = cache;
 
-        component.template = registration.template;
+        // component.template = registration.template;
+        component.render = registration.render;
 
         component.inject = ["pageScopeContainer", "rootScopeContainer"];
 

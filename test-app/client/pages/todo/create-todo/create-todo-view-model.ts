@@ -1,11 +1,11 @@
 import { route, template } from "./../../../../../src/index";
 import * as Routes from "./../../routes";
-import { BasePageViewModel } from "../../base-page-view-model";
+import { BasePageViewModel } from "../../base-page-viewmodel";
 
 
 @template(require("./create-todo-view.html"))
 @route(Routes.createTodo)
-export class CreateTodoViewModel extends BasePageViewModel
+export default class CreateTodoViewModel extends BasePageViewModel
 {
     private readonly _message = "Create Todo View";
     

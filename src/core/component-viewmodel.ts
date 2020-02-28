@@ -1,6 +1,6 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { InvalidOperationException } from "@nivinjoseph/n-exception";
-import { BaseViewModel } from "./base-view-model";
+import { BaseViewModel } from "./base-viewmodel";
 
 
 // public

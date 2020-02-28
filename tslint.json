@@ -15,7 +15,7 @@
         "no-internal-module": true,
         "no-trailing-whitespace": false,
         "no-var-keyword": true,
-        "no-default-export": true,
+        "no-default-export": false,
         "one-line": [
             true,
             "check-whitespace"

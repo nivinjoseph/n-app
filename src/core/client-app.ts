@@ -1,9 +1,9 @@
-const Vue = require("./../../vendor/vue.v2.6.11.js");
+import Vue from "@nivinjoseph/vue";
 
 // public
 export { Vue };
 
-const VueRouter = require("./../../vendor/vue-router.v3.1.3.js");
+import VueRouter from "vue-router";
 Vue.use(VueRouter);
 
 
@@ -20,7 +20,7 @@ import { DefaultStorageService } from "./../services/storage-service/default-sto
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 import { DefaultDisplayService } from "../services/display-service/default-display-service";
 import { DefaultComponentService } from "../services/component-service/default-component-service";
-import { FileSelectViewModel } from "../components/file-select-view-model";
+import FileSelectViewModel from "../components/file-select-view-model";
 
 
 // public
@@ -238,6 +238,10 @@ export class ClientApp
         
         this._app = new Vue({
             el: this._appElementId,
+            render(createElement: any)
+            {
+                return createElement("router-view");
+            },
             router: this._pageManager.vueRouterInstance,
             provide: function ()
             {
@@ -245,6 +249,6 @@ export class ClientApp
                     rootScopeContainer: container
                 };
             }
-        });
+        } as any);
     }
 }

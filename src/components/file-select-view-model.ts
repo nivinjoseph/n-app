@@ -1,13 +1,15 @@
-import { template } from "../core/template";
+// import { template } from "../core/template";
 import { element } from "../core/element";
 import { bind } from "../core/bind";
-import { ComponentViewModel } from "../core/component-view-model";
+import { ComponentViewModel } from "../core/component-viewmodel";
 import { inject } from "@nivinjoseph/n-ject";
 import { DialogService } from "../services/dialog-service/dialog-service";
 import { EventAggregator } from "../services/event-aggregator/event-aggregator";
 import { given } from "@nivinjoseph/n-defensive";
 import * as $ from "jquery";
 import { ArgumentException } from "@nivinjoseph/n-exception";
+import { template } from "../core/template";
+import "./file-select-view.scss";
 
 // public
 export interface FileInfo
@@ -22,11 +24,11 @@ export interface FileInfo
 }
 
 
-@template("<span></span>")
+@template(require("./file-select-view.html"))
 @element("file-select")
 @bind("id", "mimeTypes", "maxFileSize", "multiple", "onSelection")
 @inject("DialogService", "EventAggregator")    
-export class FileSelectViewModel extends ComponentViewModel
+export default class FileSelectViewModel extends ComponentViewModel
 {
     private readonly _dialogService: DialogService;
     private readonly _eventAggregator: EventAggregator;

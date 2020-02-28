@@ -1,13 +1,12 @@
-import { route, template, meta, NavigationService, resolve } from "./../../../../src/index";
+import { route, template, meta, NavigationService, resolve, EventAggregator } from "./../../../../src/index";
 import * as Routes from "./../routes";
-import { BasePageViewModel } from "./../base-page-view-model";
+import { BasePageViewModel } from "../base-page-viewmodel";
 import "./test-view.scss";
 import { inject } from "@nivinjoseph/n-ject";
 import { TodoRepository } from "../../services/todo-repository/todo-repository";
 import { given } from "@nivinjoseph/n-defensive";
 import { TestResolverFoo } from "../../resolvers/test-resolver-foo";
 import { TestResolverBar } from "../../resolvers/test-resolver-bar";
-import { EventAggregator } from "../../../../dist";
 
 
 @template(require("./test-view.html"))
@@ -15,7 +14,7 @@ import { EventAggregator } from "../../../../dist";
 @meta({name: "description", content: "This is test"})    
 @inject("TodoRepository", "NavigationService", "EventAggregator")    
 @resolve(TestResolverBar, TestResolverFoo) 
-export class TestViewModel extends BasePageViewModel
+export default class TestViewModel extends BasePageViewModel
 {
     // @ts-ignore
     private readonly _todoRepository: TodoRepository;

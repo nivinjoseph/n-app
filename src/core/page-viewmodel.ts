@@ -1,5 +1,5 @@
 import { RouteArgs } from "./route-args";
-import { BaseViewModel } from "./base-view-model";
+import { BaseViewModel } from "./base-viewmodel";
 import "@nivinjoseph/n-ext";
 import { given } from "@nivinjoseph/n-defensive";
 

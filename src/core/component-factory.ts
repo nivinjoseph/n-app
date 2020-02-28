@@ -12,9 +12,10 @@ export class ComponentFactory
     {
         given(registration, "registration").ensureHasValue();
         
-        const component: any = {};
+        const component: any = (<any>registration.viewModel).options || {};
         
-        component.template = registration.template;
+        // component.template = registration.template;
+        component.render = registration.render;
         
         if (registration.bindings.length > 0)
             component.props = registration.bindings;

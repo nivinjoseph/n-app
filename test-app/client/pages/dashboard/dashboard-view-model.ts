@@ -1,6 +1,6 @@
 import { route, template, DialogService, EventAggregator, NavigationService, StorageService, title } from "./../../../../src/index";
 import * as Routes from "./../routes";
-import { BasePageViewModel } from "./../base-page-view-model";
+import { BasePageViewModel } from "../base-page-viewmodel";
 import { inject } from "@nivinjoseph/n-ject";
 import "./dashboard-view.scss";
 import { ScopedService } from "../../services/scoped-service";
@@ -10,7 +10,7 @@ import { ScopedService } from "../../services/scoped-service";
 @route(Routes.dashboard)  
 @title("Dashboard")    
 @inject("DialogService", "EventAggregator", "NavigationService", "StorageService", "ScopedService")    
-export class DashboardViewModel extends BasePageViewModel
+export default class DashboardViewModel extends BasePageViewModel
 {
     private readonly _dialogService: DialogService;
     // @ts-ignore

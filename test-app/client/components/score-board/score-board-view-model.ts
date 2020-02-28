@@ -8,7 +8,7 @@ import { ScopedService } from "../../services/scoped-service";
 @element("score-board")
 @bind("score", "increment")   
 @inject("ScopedService")    
-export class ScoreBoardViewModel extends ComponentViewModel
+export default class ScoreBoardViewModel extends ComponentViewModel
 {
     // @ts-ignore
     private readonly _scopedService: ScopedService;

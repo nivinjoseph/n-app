@@ -6,6 +6,8 @@ const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
+const VueLoaderPlugin = require("@nivinjoseph/vue-loader/lib/plugin");
+// const webpack = require("webpack");
 import { ConfigurationManager } from "@nivinjoseph/n-config";
 
 const env = ConfigurationManager.getConfig<string>("env");
@@ -15,7 +17,7 @@ const isDev = env === "dev";
 
 const moduleRules: Array<any> = [
     {
-        test: /\.(scss|sass)$/,
+        test: /[^-view]\.(scss|sass)$/,
         use: [{
             loader: isDev ? "style-loader" : MiniCssExtractPlugin.loader
         }, {
@@ -106,17 +108,68 @@ const moduleRules: Array<any> = [
     {
         test: /\.taskworker\.js$/,
         loader: "worker-loader"
+    },
+    {
+        test: /-view-model\.js$/,
+        use: [
+            {
+                loader: "@nivinjoseph/vue-loader",
+                options: {
+                    hotReload: true
+                }
+            },
+            {
+                loader: path.resolve("src/vue-sfc-generator.js"),
+                options: {/* ... */ }
+            }
+        ]
+    },
+    {
+        test: /-view\.html$/,
+        use: [
+            {
+                loader: "@nivinjoseph/vue-loader",
+                options: {
+                    hotReload: true
+                }
+            },
+            {
+                loader: path.resolve("src/vue-sfc-generator.js"),
+                options: {/* ... */ }
+            }
+        ]
+    },
+    {
+        test: /-view\.scss$/,
+        use: [
+            {
+                loader: "@nivinjoseph/vue-loader",
+                options: {
+                    hotReload: true
+                }
+            },
+            {
+                loader: path.resolve("src/vue-sfc-generator.js"),
+                options: {/* ... */ }
+            }
+        ]
+    },
+    {
+        test: /\.vue$/,
+        loader: "@nivinjoseph/vue-loader"
     }
 ];
 
 const plugins = [
     new CleanWebpackPlugin(),
     new htmlWebpackPlugin({
-        template: "test-app/controllers/index-view.html",
-        filename: "index-view.html",
+        template: "test-app/controllers/indexview.html",
+        filename: "indexview.html",
         hash: true,
         favicon: "test-app/client/images/favicon.png"
-    })
+    }),
+    
+    new VueLoaderPlugin()
 ];
 
 if (isDev)
@@ -126,6 +179,8 @@ if (isDev)
         loader: "source-map-loader",
         enforce: "pre"
     });
+    
+    // plugins.push(new webpack.HotModuleReplacementPlugin());
 }
 else
 {
@@ -147,7 +202,7 @@ else
             }
         }
     });
-    
+
     plugins.push(...[
         new MiniCssExtractPlugin({
             filename: "client.bundle.css"
@@ -156,7 +211,7 @@ else
             test: /\.(js|css|svg)$/
         })
     ]);
-}  
+}
 
 module.exports = {
     mode: isDev ? "development" : "production",

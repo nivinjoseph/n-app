@@ -1,1 +1,0 @@
-{"version":3,"file":"authorizer.js","sourceRoot":"","sources":["../../src/core/authorizer.ts"],"names":[],"mappings":"","sourcesContent":["// public\nexport interface Authorizer\n{\n    authorize(): boolean;\n}"]}
