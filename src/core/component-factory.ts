@@ -11,14 +11,14 @@ export class ComponentFactory
     public create(registration: ComponentRegistration): Object
     {
         given(registration, "registration").ensureHasValue();
-        
+
         const component: any = {};
-        
+
         // component.template = registration.template;
-        
+
         // component.render = (<any>registration.viewModel).___render;
         // component.staticRenderFns = (<any>registration.viewModel).___staticRenderFns;
-        
+
         if (typeof registration.template === "string")
         {
             component.template = registration.template;
@@ -28,18 +28,18 @@ export class ComponentFactory
             component.render = registration.template.render;
             component.staticRenderFns = registration.template.staticRenderFns;
         }
-        
+
         if (registration.bindings.isNotEmpty)
         {
             component.props = registration.bindings
                 .reduce<Record<string, any>>((acc, t) =>
                 {
                     // const types = ["string", "boolean", "number", "function", "array", "object"];
-                    
+
                     const propSchema: Record<string, any> = {};
                     const isOptional = t.name === "model" ? true : t.isOptional;
                     propSchema.required = !isOptional;
-                    
+
                     if (typeof t.type === "string")
                     {
                         const type = t.type.trim().toLowerCase();
@@ -50,6 +50,8 @@ export class ComponentFactory
                                 break;
                             case "boolean":
                                 propSchema.type = Boolean;
+                                // https://github.com/vuejs/vue/issues/4792
+                                propSchema.default = undefined;
                                 break;
                             case "number":
                                 propSchema.type = Number;
@@ -78,7 +80,7 @@ export class ComponentFactory
                         propSchema.type = Object;
                     else
                         throw new Error(`Unsupported binding prop type '${t.type}'`);
-                    
+
                     const validationSchema: Record<string, any> = {
                         [registration.name]: {
                             "props": {
@@ -86,9 +88,9 @@ export class ComponentFactory
                             }
                         }
                     };
-                    
+
                     // const longName = `${registration.name}.props.${t.name}`;
-                    
+
                     propSchema.validator = (value: any): boolean | never =>
                     {
                         given({
@@ -99,29 +101,29 @@ export class ComponentFactory
                             }
                         }, t.name)
                             .ensureHasStructure(validationSchema);
-                        
+
                         return true;
                     };
-                    
+
                     acc[t.name === "model" ? "value" : t.name] = propSchema;
-                    
+
                     return acc;
                 }, {});
         }
-        
+
         component.inject = ["pageScopeContainer", "rootScopeContainer"];
-        
+
         component.data = function (): { vm: any; }
         {
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const vueVm = this;
-            
+
             // console.log("INVOKED component");
-            
+
             const container: Scope | null = vueVm.pageScopeContainer || vueVm.rootScopeContainer;
             if (!container)
                 throw new ApplicationException("Could not get pageScopeContainer or rootScopeContainer.");
-            
+
             if (component.___reload)
             {
                 const c = container as Container;
@@ -133,12 +135,12 @@ export class ComponentFactory
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 cReg._dependencies = cReg._getDependencies();
                 // registration.reload(component.___viewModel);
-                
+
                 component.___reload = false;
             }
-            
+
             const vm = container.resolve<any>(registration.name);
-            
+
             const data = { vm: vm };
             const methods: { [index: string]: any; } = {};
             const computed: { [index: string]: any; } = {};
@@ -161,33 +163,33 @@ export class ComponentFactory
             vueVm.$options.computed = computed;
             vm._ctx = vueVm;
             vm._bindings = component.props ? [...registration.bindings.map(t => t.name)] : [];
-            
+
             vm._events = registration.events;
 
             return data;
         };
-        
-        
+
+
         component.beforeCreate = function (): void
         {
             // if (registration.bindings.isNotEmpty)
             //     given(this.$options.propsData as object, "boundData").ensureHasValue().ensureIsObject()
             //         .ensureHasStructure(registration.bindingSchema as any);
-            
+
             // console.log("executing beforeCreate");
             // console.log(Object.keys(this));
             // console.log(this.$options);
         };
-        
+
         component.created = function (): void
         {
             // if (registration.bindings.isNotEmpty)
             //     given(this.$options.propsData as object, "propsData").ensureHasValue().ensureIsObject()
             //         .ensureHasStructure(registration.bindingSchema as any);
-            
+
             // console.log("executing created");
             // console.log(this.vm);
-            
+
             if (this.vm.onCreate)
             {
                 if (registration.persist && registration.isCreated)
@@ -201,60 +203,60 @@ export class ComponentFactory
 
             registration.created();
         };
-        
+
         component.beforeMount = function (): void
         {
             // console.log("executing beforeMount");
             // console.log(this.vm);
         };
-        
+
         component.mounted = function (): void
         {
             // console.log("executing mounted");
             // console.log(this.vm);
-            
+
             if (this.vm.onMount)
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onMount(this.$el);    
+                this.vm.onMount(this.$el);
         };
-        
+
         component.beforeUpdate = function (): void
         {
             // console.log("executing beforeUpdate");
             // console.log(this.vm);
         };
-        
+
         component.updated = function (): void
         {
             // console.log("executing updated");
             // console.log(this.vm);
         };
-        
+
         component.beforeDestroy = function (): void
         {
             // console.log("executing beforeDestroy");
             // console.log(this.vm);
-            
+
             if (this.vm.onDismount)
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.vm.onDismount();
         };
-        
+
         component.destroyed = function (): void
         {
             // console.log("executing destroyed");
             // console.log(this.vm);
-            
+
             if (this.vm.onDestroy && !registration.persist)
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onDestroy(); 
-            
+                this.vm.onDestroy();
+
             this.vm._ctx.$options.methods = null;
             this.vm._ctx.$options.computed = null;
             // this.vm._ctx = null;
             this.vm = null;
         };
-        
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return component;
     }
