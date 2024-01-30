@@ -1,14 +1,15 @@
 import "@nivinjoseph/n-ext";
-import { ClientApp, DefaultDialogService, DialogLocation } from "./../../src/index";
-import { ScoreBoardViewModel } from "./components/score-board/score-board-view-model";
-import { ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
-import { InmemoryTodoRepository } from "./services/todo-repository/inmemory-todo-repository";
-import { DashboardViewModel } from "./pages/dashboard/dashboard-view-model";
-import { TestViewModel } from "./pages/test/test-view-model";
-import { TodoViewModel } from "./pages/todo/todo-view-model";
-import * as Routes from "./pages/routes";
+import { ClientApp, DefaultDialogService, DialogLocation } from "./../../src/index.js";
+import { ScoreBoardViewModel } from "./components/score-board/score-board-view-model.js";
+import type { ComponentInstaller, Registry } from "@nivinjoseph/n-ject";
+import { InmemoryTodoRepository } from "./services/todo-repository/inmemory-todo-repository.js";
+import { DashboardViewModel } from "./pages/dashboard/dashboard-view-model.js";
+import { TestViewModel } from "./pages/test/test-view-model.js";
+import { TodoViewModel } from "./pages/todo/todo-view-model.js";
+import * as Routes from "./pages/routes.js";
 // import { BindingTestViewModel } from "./components/binding-test/binding-test-view-model";
-import { ScopedService } from "./services/scoped-service";
+import { ScopedService } from "./services/scoped-service.js";
+import { RedirectViewModel } from "./pages/redirect/redirect-view-model.js";
 
 
 
@@ -30,7 +31,7 @@ class Installer implements ComponentInstaller
     }
 }
 
-const pages = [DashboardViewModel, TestViewModel, TodoViewModel];
+const pages = [DashboardViewModel, TestViewModel, TodoViewModel, RedirectViewModel];
 // const pages = [DashboardViewModel, TestViewModel];
 
 const dialogService = new DefaultDialogService({

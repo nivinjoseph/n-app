@@ -1,4 +1,4 @@
-import { Resolver, Resolution, DialogService, NavRoute } from "../../../src/index";
+import type { Resolver, Resolution, DialogService, NavRoute } from "../../../src/index.js";
 import { inject } from "@nivinjoseph/n-ject";
 import { given } from "@nivinjoseph/n-defensive";
 import { Delay } from "@nivinjoseph/n-util";

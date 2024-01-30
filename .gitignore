@@ -40,17 +40,35 @@ jspm_packages
 .DS_Store
 
 # Ignores compiled TypeScript files
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 src/**/*.js
 src/**/*.map
+src/**/*.d.ts
 test/**/*.js
 test/**/*.map
+test/**/*.d.ts
 test-app/**/*.js
 test-app/**/*.map
+test-app/**/*.d.ts
+/*.js
+/*.map
+/*.d.ts
+
 
 # Client dist folder, this is a build artifact of test-app
 test-app/client/dist
+test-app-new/client/dist
 
 # Webpack config compiled artifacts
 webpack.config.js
 webpack.config.js.map
+
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+.vite-inspect/

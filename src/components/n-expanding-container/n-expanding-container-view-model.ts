@@ -1,7 +1,7 @@
-import { template } from "../../core/template";
-import { element } from "../../core/element";
-import { bind } from "../../core/bind";
-import { ComponentViewModel } from "../../core/component-view-model";
+import { template } from "../../core/template.js";
+import { element } from "../../core/element.js";
+import { bind } from "../../core/bind.js";
+import { ComponentViewModel } from "../../core/component-view-model.js";
 import { TypeHelper } from "@nivinjoseph/n-util";
 import "./n-expanding-container-view.scss";
 

@@ -1,17 +1,21 @@
 import { given } from "@nivinjoseph/n-defensive";
 import { ApplicationException } from "@nivinjoseph/n-exception";
+import type { CreateComponentPublicInstance, WatchStopHandle } from "vue";
 
 
 export abstract class BaseViewModel
 {
-    private readonly _watches: Record<string, Function | undefined> = {};
+    private readonly _watches: Record<string, WatchStopHandle | undefined> = {};
     private _executeOnCreate: (() => void) | null = null;
     private _executeOnDestroy: (() => void) | null = null;
     private _domElement!: HTMLElement;
 
 
     protected get domElement(): HTMLElement { return this._domElement; }
-    protected get ctx(): Record<string, any> { return (<any>this)["_ctx"] as Record<string, any>; }
+    protected get ctx(): CreateComponentPublicInstance
+    {
+        return (<any>this)["_ctx"] as CreateComponentPublicInstance;
+    }
 
 
     /** Override */
@@ -23,14 +27,14 @@ export abstract class BaseViewModel
 
     /** Override */
     protected onMount(element: HTMLElement): void
-    { 
+    {
         given(element, "element").ensureHasValue().ensureIsObject();
         this._domElement = element;
     }
-    
+
     /** Override */
     protected onDismount(): void
-    { 
+    {
         // deliberate empty
     }
 
@@ -39,9 +43,10 @@ export abstract class BaseViewModel
     {
         for (const key in this._watches)
         {
-            if (this._watches[key])
+            const unwatch = this._watches[key];
+            if (unwatch != null)
             {
-                this._watches[key]!(); // FIXME: why are we 
+                unwatch();
                 this._watches[key] = undefined;
             }
         }
@@ -74,7 +79,6 @@ export abstract class BaseViewModel
         if (this._watches[propertyName])
             throw new ApplicationException(`Watch already defined for property '${propertyName}'.`);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this._watches[propertyName] = this.ctx.$watch(propertyName,
             function (newVal: any, oldVal: any)
             {
@@ -88,9 +92,10 @@ export abstract class BaseViewModel
 
         propertyName = propertyName.trim();
 
-        if (this._watches[propertyName])
+        const unwatch = this._watches[propertyName];
+        if (unwatch != null)
         {
-            this._watches[propertyName]!();
+            unwatch();
             this._watches[propertyName] = undefined;
         }
     }

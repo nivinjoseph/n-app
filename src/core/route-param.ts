@@ -1,7 +1,7 @@
 import { given } from "@nivinjoseph/n-defensive";
 import "@nivinjoseph/n-ext";
 import { InvalidArgumentException, ApplicationException, InvalidOperationException } from "@nivinjoseph/n-exception";
-import { HttpException } from "./http-exception";
+import { HttpException } from "./http-exception.js";
 
 export class RouteParam
 {
@@ -59,7 +59,8 @@ export class RouteParam
         {
             if (!isQuery)
                 throw new ApplicationException("Path parameters cannot be optional.");
-
+            
+            // TODO: we can tell vue router that this param is optional don't need to remove '?'
             paramKey = paramKey.substr(0, paramKey.length - 1);
             isOptional = true;
         }

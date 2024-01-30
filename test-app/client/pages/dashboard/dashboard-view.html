@@ -1,17 +1,26 @@
 <div class="dashboard-view">
+    <p>
+        Version = {{version}}
+    </p>
+    <p>
+
+        Scoped ServiceValue = {{scopedServiceValue}}
+        {{obj.name}}
+        {{obj.name2}}
+    </p>
     <div class="logo">
-        <img src="images/logo.svg" alt="">
+        <img src="/images/logo.svg" alt="">
     </div>
     <div class="logo">
-        <img src="images/logo.svg?format=webp" alt="">
+        <img src="./images/logo.svg?format=webp" alt="">
     </div>
-    <button>
+    <button @click="increment">
         <span class="icon is-small">
             <svg>
                 <use xlink:href="~feather#chevron-right" />
             </svg>
         </span>
-        Incrementsdddd
+        Increments
     </button>
     <button @click="loading">
         <span class="icon is-small">
@@ -19,7 +28,7 @@
                 <use xlink:href="~feather#chevron-left" />
             </svg>
         </span>
-        Incrementsdddd
+        Loading
     </button>
     <div class="image with-background">
         <!-- <img src="images/photo.jpg?width=200" alt=""> -->
@@ -33,8 +42,50 @@
     </div>
     <h3>{{message}}</h3>
     <score-board v-bind:score="score" @incremented="increment"></score-board>
-    <router-link to="/Test/2">Go to Test</router-link>
+    <router-link to="/Test/2">Go to Tests</router-link>
     <p>{{fooParentValue}}</p>
     <binding-test v-model="fooParentValue" :any-val="message"></binding-test>
-    <n-scroll-container @foo="increment"></n-scroll-container>
+
+    <div style="height: 100px; width: 100%;">
+        <n-scroll-container @foo="increment">
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Inventore velit placeat ea accusantium
+            voluptatibus? Est unde enim obcaecati laboriosam mollitia a cum sit quasi laudantium repudiandae. Aliquam,
+            qui praesentium ipsa facilis exercitationem modi quam, corrupti voluptates eum voluptas necessitatibus omnis
+            distinctio voluptatibus laudantium recusandae doloribus error quasi unde quidem porro iusto optio. Excepturi
+            at voluptatibus iusto fugit magnam, officia, reiciendis omnis voluptate modi tempore, officiis assumenda
+            iste sed in corrupti tenetur? Aspernatur quaerat, doloremque deleniti inventore veniam illum quo, suscipit,
+            nulla cumque autem ipsam molestias totam ad? Architecto, quam velit, nostrum dolor aspernatur autem nisi
+            molestias veritatis voluptatem cum nesciunt reiciendis amet quisquam reprehenderit ducimus repellendus
+            aperiam ab eaque? Perspiciatis porro itaque rem inventore est, vitae dolore natus voluptatem maiores numquam
+            officia nesciunt ratione in laboriosam, qui enim blanditiis! Tempore sequi odit facere doloremque adipisci
+            maiores iure est magnam, totam voluptas deserunt aperiam similique veritatis ab esse labore reprehenderit
+            quaerat temporibus nesciunt, eveniet hic officiis, perspiciatis qui aliquid! Voluptatem soluta corrupti at
+            vel esse id officiis quisquam quod recusandae harum veritatis hic, explicabo quas laudantium minus nesciunt
+            voluptates, quos debitis sit repudiandae, mollitia accusantium! Beatae aliquid debitis molestias rem soluta
+            et ipsum consectetur omnis doloribus voluptatem ipsam nisi saepe cupiditate quia, dolorum maxime mollitia
+            ipsa quam. Aliquid incidunt ad, tempora reiciendis reprehenderit esse veniam architecto nihil ut natus
+            pariatur laudantium perspiciatis omnis eos provident illo optio deserunt impedit odio fuga ab. Repellat
+            minima tempora blanditiis non praesentium officiis vero illo iure consequatur temporibus voluptates illum
+            earum ipsum quos suscipit, cumque neque debitis id repellendus natus unde optio dolores veritatis. Impedit
+            quam hic nobis nemo mollitia. Delectus nostrum iusto ea impedit fugiat adipisci incidunt aliquam fuga, qui
+            voluptate id hic ab perferendis doloremque tempora libero, vitae amet necessitatibus iste alias. Dolor
+            possimus sit quam at non consectetur expedita porro autem ea dolore eaque debitis velit impedit quae eos
+            perspiciatis magnam nulla tempora qui, beatae labore quibusdam voluptate fuga ratione. Laudantium molestiae
+            quasi quod et repellat alias iusto eum id debitis, ab dolor ipsum eligendi similique optio necessitatibus,
+            suscipit sed veniam sunt. Suscipit ipsum vero ullam ducimus quia provident, est in officiis iste consectetur
+            quo laboriosam quis consequatur mollitia commodi facilis quae aperiam culpa nisi laudantium? Exercitationem
+            fugiat hic, voluptates temporibus voluptatem corrupti recusandae voluptas possimus, earum aliquam reiciendis
+            esse mollitia deleniti, ratione distinctio ipsa. Iusto mollitia quas aspernatur amet sed porro optio nulla
+            aut ipsa cupiditate debitis, eveniet quod repellat voluptatem itaque suscipit ab deserunt nam, aperiam at
+            iure! Nam minus tempore voluptas consequatur earum tempora, dignissimos exercitationem reprehenderit dolorem
+            repellat vel? Optio iusto tempore, excepturi eaque dolore non commodi vitae soluta mollitia ipsum voluptate
+            numquam voluptatum, illum suscipit omnis eos? Maxime nostrum et velit temporibus repellat unde ullam natus
+            itaque, animi assumenda, quam ipsum fugiat officiis nihil? Tempora quia, quod id quos sapiente eos similique
+            quibusdam provident delectus culpa optio repellendus, necessitatibus quaerat? Distinctio nihil laborum esse,
+            quibusdam aperiam, minima nobis voluptatum vitae sapiente suscipit harum beatae deleniti in! Autem eum velit
+            magni perferendis porro vitae dolorem similique, dicta ad?
+        </n-scroll-container>
+    </div>
+
+    <local-page-component></local-page-component>
 </div>

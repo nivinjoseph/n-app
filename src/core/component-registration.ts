@@ -1,10 +1,12 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { ViewModelRegistration } from "./view-model-registration";
-import { elementSymbol } from "./element";
 import { ApplicationException } from "@nivinjoseph/n-exception";
-import { bindSymbol } from "./bind";
-import { eventsSymbol } from "./events";
-import { Utilities } from "./utilities";
+import { bindSymbol } from "./bind.js";
+import type { ComponentViewModelClass } from "./component-view-model.js";
+import { elementSymbol } from "./element.js";
+import { eventsSymbol } from "./events.js";
+import { Utilities } from "./utilities.js";
+import { ViewModelRegistration } from "./view-model-registration.js";
+import { componentsSymbol } from "./components.js";
 
 
 export class ComponentRegistration extends ViewModelRegistration
@@ -14,29 +16,34 @@ export class ComponentRegistration extends ViewModelRegistration
     private readonly _bindingSchema: object = {};
     private readonly _hasModel: boolean;
     private readonly _events = new Array<string>();
-    
-    
+    private readonly _localComponentRegistrations = new Array<ComponentRegistration>();
+
+
     public get element(): string { return this._element; }
     public get bindings(): Array<ComponentBindingInfo> { return this._bindings; }
     public get bindingSchema(): object { return this._bindingSchema; }
     public get hasModel(): boolean { return this._hasModel; }
     public get events(): Array<string> { return this._events; }
-    
-    
-    public constructor(component: Function)
+    public get localComponentRegistrations(): Array<ComponentRegistration> { return this._localComponentRegistrations; }
+
+
+    public constructor(component: ComponentViewModelClass<any>)
     {
         given(component, "component").ensureHasValue();
-        
+
         super(component);
-        
-        if (!Reflect.hasOwnMetadata(elementSymbol, this.viewModel))
+
+        const metadata = component[Symbol.metadata]!;
+
+        const element = metadata[elementSymbol] as string | undefined;
+        if (element == null)
             throw new ApplicationException(`ComponentViewModel '${this.name}' does not have @element applied.`);
 
-        this._element = Reflect.getOwnMetadata(elementSymbol, this.viewModel);
-        
-        if (Reflect.hasOwnMetadata(bindSymbol, this.viewModel))
+        this._element = element;
+
+        const bindingSchema = metadata[bindSymbol] as Record<string, any> | undefined;
+        if (bindingSchema != null)
         {
-            const bindingSchema: Record<string, any> = Reflect.getOwnMetadata(bindSymbol, this.viewModel);
             Object.keys(bindingSchema).forEach(key =>
             {
                 let name = key.trim();
@@ -52,9 +59,9 @@ export class ComponentRegistration extends ViewModelRegistration
                     type: bindingSchema[key]
                 });
             });
-            
-            const forbidden = [...Utilities.forbidden, "value"];
-            
+
+            const forbidden = [...Utilities.forbidden, "value", "modelValue"];
+
             given(this._bindings, "bindings")
                 .ensure(t => t.length === t.distinct(u => u.name).length,
                     `duplicate binding declarations detected in ${this.name} binding schema`)
@@ -63,35 +70,36 @@ export class ComponentRegistration extends ViewModelRegistration
                 // .ensure(t => t.every(u => u.name !== "value"), "using forbidden keyword 'value' in binding schema")
                 .ensure(t => t.every(u => !forbidden.contains(u.name)),
                     `using forbidden keyword in binding schema, the following names are forbidden: ${forbidden}.`);
-            
+
             this._bindingSchema = bindingSchema;
         }
-        
+
         this._hasModel = this._bindings.some(t => t.name === "model");
-        
-        if (Reflect.hasOwnMetadata(eventsSymbol, this.viewModel))
-            this._events.push(...Reflect.getOwnMetadata(eventsSymbol, this.viewModel));
+
+        const events = metadata[eventsSymbol] as ReadonlyArray<string> | undefined;
+        if (events != null)
+            this._events.push(...events);
+
+        if (this._hasModel)
+            this._events.push("update:modelValue");
+
+        const components = metadata[componentsSymbol] as ReadonlyArray<ComponentViewModelClass<any>> | undefined;
+        if (components != null && components.isNotEmpty)
+        {
+            components.forEach(component =>
+            {
+                const registration = new ComponentRegistration(component);
+
+                if (this._localComponentRegistrations.some(t => t.name === registration.name))
+                    throw new ApplicationException(`Duplicate Local Component registration with name '${registration.name}' for Parent Component '${this.name}'.`);
+                
+                if (this._localComponentRegistrations.some(t => t.element === registration.element))
+                    throw new ApplicationException(`Duplicate Local Component registration with element '${registration.element}' for Parent Component '${this.name}'`);
+                
+                this._localComponentRegistrations.push(registration);
+            });
+        }
     }
-    
-    
-    // public reload(component: Function): void
-    // {
-    //     given(component, "component").ensureHasValue();
-
-    //     super.reload(component);
-
-    //     this._bindings = new Array<string>();
-
-    //     if (!Reflect.hasOwnMetadata(elementSymbol, this.viewModel))
-    //         throw new ApplicationException(`ComponentViewModel '${this.name}' does not have @element applied.`);
-
-    //     this._element = Reflect.getOwnMetadata(elementSymbol, this.viewModel);
-
-    //     if (Reflect.hasOwnMetadata(bindSymbol, this.viewModel))
-    //         this._bindings.push(...Reflect.getOwnMetadata(bindSymbol, this.viewModel));
-
-    //     this._hasModel = this._bindings.some(t => t === "value");
-    // }
 }
 
 export interface ComponentBindingInfo

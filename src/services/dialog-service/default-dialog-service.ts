@@ -1,24 +1,44 @@
-const Toastr = require("./../../../vendor/toastr.js");
-if (!Toastr)
-    console.log("No Toastr!!!");
+import "../../../vendor/toastr.js";
+import "../../../vendor/topbar.js";
+import "../../../vendor/spin.js";
 
-const Spinner = require("./../../../vendor/spin.js");
-if (!Spinner)
-    console.log("No Spinner!!!");
-    
-const Topbar = require("./../../../vendor/topbar.js");
-if (!Topbar)
-    console.log("No Topbar!!!");
 
-import { DialogLocation, DialogService, DialogServiceOptions } from "./dialog-service";
+declare global
+{
+    interface Window
+    {
+        topbar: {
+            config(config: {
+                barThickness: number;
+                barColors: Record<string, string>;
+            }): void;
+
+            show(): void;
+            hide(): void;
+        };
+
+        Spinner: ClassDefinition<any>;
+
+        toastr: any;
+    }
+}
+
+
+// This works for Prod
+// import Toastr from "../../../vendor/toastr.js";
+// import Topbar from "../../../vendor/topbar.cjs";
+// import Spinner from "../../../vendor/spin.cjs";
+
+import { DialogLocation, type DialogService, type DialogServiceOptions } from "./dialog-service.js";
 // import * as $ from "jquery";
 import { given } from "@nivinjoseph/n-defensive";
+import type { ClassDefinition } from "@nivinjoseph/n-util";
 
-
+// 
 export class DefaultDialogService implements DialogService
 {
     private readonly _accentColor: string;
-    private readonly _toastr: Toastr;
+    private readonly _toastr: any;
     private readonly _loadingScreenType: "spinner" | "topbar";
     private _loadingScreenCount = 0;
     private _loadingScreen: JQuery<HTMLElement> | null = null;
@@ -41,25 +61,24 @@ export class DefaultDialogService implements DialogService
             .ensure(t => t === "spinner" || t === "topbar");
 
         this._accentColor = accentColor.trim();
-        
+
         this._loadingScreenType = loadingScreen;
 
-        this._toastr = (<any>window).toastr;
+        this._toastr = window.toastr;
 
         this._toastr.options.timeOut = 4000;
         this._toastr.options.positionClass = dialogLocation;
         this._toastr.options.newestOnTop = newestOnTop;
         this._toastr.options.closeButton = enableCloseButton;
-        
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        Topbar.config({
+
+        window.topbar.config({
             barThickness: 4,
             barColors: {
                 "0": this._accentColor
             }
         });
     }
-    
+
     public showLoadingScreen(): void 
     {
         if (this._loadingScreenType === "topbar")
@@ -67,7 +86,7 @@ export class DefaultDialogService implements DialogService
         else
             this._showSpinner();
     }
-    
+
     public hideLoadingScreen(): void 
     {
         if (this._loadingScreenType === "topbar")
@@ -80,10 +99,12 @@ export class DefaultDialogService implements DialogService
     {
         if (title)
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this._toastr.info(message, title);
         }
         else
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this._toastr.info(message);
         }
     }
@@ -92,10 +113,12 @@ export class DefaultDialogService implements DialogService
     {
         if (title)
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this._toastr.success(message, title);
         }
         else
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this._toastr.success(message);
         }
     }
@@ -104,10 +127,12 @@ export class DefaultDialogService implements DialogService
     {
         if (title)
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this._toastr.warning(message, title);
         }
         else
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this._toastr.warning(message);
         }
     }
@@ -116,19 +141,22 @@ export class DefaultDialogService implements DialogService
     {
         if (title)
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this._toastr.error(message, title);
         }
         else
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this._toastr.error(message);
         }
     }
 
     public clearMessages(): void
     {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this._toastr.clear();
     }
-    
+
     private _showSpinner(): void
     {
         if (this._loadingScreenCount === 0)
@@ -169,7 +197,7 @@ export class DefaultDialogService implements DialogService
         if (this._loadingScreenCount === 0)
         {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            Topbar.show();
+            window.topbar.show();
         }
 
         this._loadingScreenCount++;
@@ -185,7 +213,7 @@ export class DefaultDialogService implements DialogService
         if (this._loadingScreenCount === 0)
         {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            Topbar.hide();
+            window.topbar.hide();
         }
     }
 
@@ -235,7 +263,7 @@ export class DefaultDialogService implements DialogService
 
         const target = document.getElementById("spinnerLocation");
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        this._spinner = new Spinner(opts).spin(target);
+        this._spinner = new window.Spinner(opts).spin(target);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this._spinner.stop();

@@ -1,15 +1,23 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "moduleResolution": "Node",
-        "target": "es2015",
         "lib": [
-            "ES2021",
-            "DOM",
-            "DOM.Iterable"
+            "ESNext",
+            "esnext.decorators",
+            "DOM"
         ],
+        "target": "ESNext",
         "strict": true,
         "strictNullChecks": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "composite": true,
+        "verbatimModuleSyntax": true,
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "types": [
+            "node",
+            "jquery"
+        ],
         "strictFunctionTypes": true,
         "noImplicitThis": true,
         "noImplicitReturns": true,
@@ -18,15 +26,12 @@
         "noFallthroughCasesInSwitch": true,
         "noEmitOnError": true,
         "sourceMap": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
         "removeComments": false,
-        "forceConsistentCasingInFileNames": true,
-        "incremental": false,
-        "skipLibCheck": true,
         "importHelpers": true,
         "noEmitHelpers": true,
         "noImplicitOverride": true,
-        "pretty": true
+        "pretty": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
     }
 }

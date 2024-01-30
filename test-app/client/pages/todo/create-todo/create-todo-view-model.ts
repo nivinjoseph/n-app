@@ -1,6 +1,6 @@
-import { route, template } from "./../../../../../src/index";
-import * as Routes from "./../../routes";
-import { BasePageViewModel } from "../../base-page-view-model";
+import { route, template } from "./../../../../../src/index.js";
+import * as Routes from "./../../routes.js";
+import { BasePageViewModel } from "../../base-page-view-model.js";
 
 
 @template(require("./create-todo-view.html"))
