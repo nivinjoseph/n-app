@@ -1,29 +1,29 @@
-import { NavigationService } from "./navigation-service";
+import type { NavigationService } from "./navigation-service.js";
 import { given } from "@nivinjoseph/n-defensive";
 import "@nivinjoseph/n-ext";
-import { Utils } from "../../core/utils";
-import VueRouter from "vue-router";
+import { Utils } from "../../core/utils.js";
+import type { Router } from "vue-router";
 
 
 export class DefaultNavigationService implements NavigationService
 {
-    private readonly _vueRouter: VueRouter;
-    
-    
-    public get currentRoutePath(): string { return this._vueRouter.currentRoute.path; }
-    public get currentRouteFullPath(): string { return this._vueRouter.currentRoute.fullPath; }
+    private readonly _vueRouter: Router;
+
+
+    public get currentRoutePath(): string { return this._vueRouter.currentRoute.value.path; }
+    public get currentRouteFullPath(): string { return this._vueRouter.currentRoute.value.fullPath; }
     public get currentRouteHash(): string | null { return this._getHash(); }
 
 
-    public constructor(vueRouter: VueRouter)
+    public constructor(vueRouter: Router)
     {
         given(vueRouter, "vueRouter").ensureHasValue().ensureIsObject();
         this._vueRouter = vueRouter;
-        
-        
+
+
         // // the code below is a hack to deal with following error
         // // Error: Navigation cancelled from "/runtime/dashboard" to "/runtime/appType/apd_cafdb74cf103485db2a6a2bcfd65ee8d" with a new navigation.
-        
+
         // // Solve an error
         // const originalPush = this._vueRouter.push;
         // const originalReplace = this._vueRouter.replace;
@@ -49,7 +49,7 @@ export class DefaultNavigationService implements NavigationService
         // };
     }
 
-    
+
     public navigate(route: string, params?: object | null, replaceHistory?: boolean): void
     {
         const url = Utils.generateUrl(route, params ?? undefined);
@@ -58,12 +58,12 @@ export class DefaultNavigationService implements NavigationService
         else
             this._vueRouter.push(url).catch(e => console.error(e));
     }
-    
+
     public navigateBack(): void
     {
         this._vueRouter.back();
     }
-    
+
     public navigateForward(): void
     {
         this._vueRouter.forward();
@@ -85,7 +85,7 @@ export class DefaultNavigationService implements NavigationService
     {
         given(url, "url").ensureHasValue().ensureIsString();
         url = url.trim();
-        
+
         window.open(url);
     }
 
@@ -113,7 +113,7 @@ export class DefaultNavigationService implements NavigationService
     public getSiteQueryParam(key: string): string
     {
         given(key, "key").ensureHasValue().ensureIsString();
-        
+
         // eslint-disable-next-line no-useless-escape
         key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
         const regex = new RegExp("[\\?&]" + key + "=([^&#]*)");
@@ -147,17 +147,17 @@ export class DefaultNavigationService implements NavigationService
         document.body.appendChild(form);
         return form;
     }
-    
+
     private _getHash(): string | null
     {
-        let hash = this._vueRouter.currentRoute.hash;
+        let hash = this._vueRouter.currentRoute.value.hash;
         if (!hash || hash.isEmptyOrWhiteSpace())
             return null;
-        
+
         hash = hash.trim();
         if (hash.startsWith("#"))
             hash = hash.substr(1);
-        
+
         return hash.isEmptyOrWhiteSpace() ? null : hash;
     }
 }

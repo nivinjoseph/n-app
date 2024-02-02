@@ -1,4 +1,4 @@
-import { RouteInfo } from "./route-info";
+import { RouteInfo } from "./route-info.js";
 import { given } from "@nivinjoseph/n-defensive";
 
 

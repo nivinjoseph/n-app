@@ -1,7 +1,7 @@
 import { ApplicationException } from "@nivinjoseph/n-exception";
 import "@nivinjoseph/n-ext";
-import { PropertyInfo } from "./property-info";
-import { Utils } from "./utils";
+import { PropertyInfo } from "./property-info.js";
+import { Utils } from "./utils.js";
 
 
 export class Utilities

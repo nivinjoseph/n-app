@@ -11,8 +11,10 @@
  * Project: https://github.com/CodeSeven/toastr
  */
 
-require("./toastr.css.js");
- 
+
+
+import "./toastr.css.js";
+
 /* global define */
 (function (define) {
     define(function ($) {
@@ -124,14 +126,14 @@ require("./toastr.css.js");
 
             // internal functions
 
-            function clearContainer (options) {
+            function clearContainer(options) {
                 var toastsToClear = $container.children();
                 for (var i = toastsToClear.length - 1; i >= 0; i--) {
                     clearToast($(toastsToClear[i]), options);
                 }
             }
 
-            function clearToast ($toastElement, options, clearOptions) {
+            function clearToast($toastElement, options, clearOptions) {
                 var force = clearOptions && clearOptions.force ? clearOptions.force : false;
                 if ($toastElement && (force || $(':focus', $toastElement).length === 0)) {
                     $toastElement[options.hideMethod]({
@@ -298,7 +300,7 @@ require("./toastr.css.js");
                     $toastElement.hide();
 
                     $toastElement[options.showMethod](
-                        {duration: options.showDuration, easing: options.showEasing, complete: options.onShown}
+                        { duration: options.showDuration, easing: options.showEasing, complete: options.onShown }
                     );
 
                     if (options.timeOut > 0) {
@@ -400,7 +402,7 @@ require("./toastr.css.js");
                     clearTimeout(intervalId);
                     progressBar.hideEta = 0;
                     $toastElement.stop(true, true)[options.showMethod](
-                        {duration: options.showDuration, easing: options.showEasing}
+                        { duration: options.showDuration, easing: options.showEasing }
                     );
                 }
 
@@ -430,5 +432,5 @@ require("./toastr.css.js");
         })();
     });
 }(function (factory) {
-        window.toastr = factory($);
+    window.toastr = factory($);
 }));

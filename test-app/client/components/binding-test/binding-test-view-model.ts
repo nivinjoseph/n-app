@@ -1,4 +1,4 @@
-import { element, bind, ComponentViewModel, template } from "./../../../../src/index";
+import { element, bind, ComponentViewModel, template } from "./../../../../src/index.js";
 import "./binding-test-view.scss";
 
 
@@ -15,8 +15,8 @@ export class BindingTestViewModel extends ComponentViewModel
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     public get anyValue(): any { return this.getBound("anyVal"); }
-    
-    
+
+
     protected override onCreate(): void
     {
         console.log("binding test on create");

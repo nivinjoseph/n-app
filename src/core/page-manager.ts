@@ -1,53 +1,45 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { Container } from "@nivinjoseph/n-ject";
-import { PageRegistration } from "./page-registration";
 import { ApplicationException } from "@nivinjoseph/n-exception";
-import { Page } from "./page";
-import { PageTreeBuilder } from "./page-tree-builder";
-import { Resolver, Resolution } from "./resolve";
-import { ComponentManager } from "./component-manager";
-import VueRouter from "vue-router";
+import { Container } from "@nivinjoseph/n-ject";
+import { createRouter, createWebHashHistory, createWebHistory, type Router } from "vue-router";
+import { PageRegistration } from "./page-registration.js";
+import { PageTreeBuilder } from "./page-tree-builder.js";
+import type { PageViewModelClass } from "./page-view-model.js";
+import { Page } from "./page.js";
+import type { Resolver } from "./resolve.js";
+import type { ComponentRegistration } from "./component-registration.js";
 
 
 export class PageManager
 {
-    private readonly _vueRouter: any;
     private readonly _container: Container;
-    private readonly _componentManager: ComponentManager;
-    private readonly _pageViewModelClasses = new Array<Function>();
+    private readonly _pageViewModelClasses = new Array<PageViewModelClass<any>>();
     private readonly _registrations = new Array<PageRegistration>();
     private readonly _resolvers = new Array<string>();
-    private _vueRouterInstance: VueRouter | null = null;
+    private _vueRouterInstance: Router | null = null;
     private _initialRoute: string | null = null;
     private _unknownRoute: string | null = null;
-    // private _defaultPageTitle: string | null = null;
-    // private _defaultPageMetas: ReadonlyArray<MetaDetail> = null;
     private _useHistoryMode = false;
 
 
-    public get hasRegistrations(): boolean { return this._registrations.isNotEmpty;  }
+    public get hasRegistrations(): boolean { return this._registrations.isNotEmpty; }
     public get useHistoryMode(): boolean { return this._useHistoryMode; }
-    public get vueRouterInstance(): VueRouter
+    public get vueRouterInstance(): Router
     {
         given(this, "this").ensure(t => t._vueRouterInstance != null, "not bootstrapped");
         return this._vueRouterInstance!;
     }
 
 
-    public constructor(vueRouter: unknown, container: Container, componentManager: ComponentManager)
+    public constructor(container: Container)
     {
-        given(vueRouter as object, "vueRouter").ensureHasValue();
-        this._vueRouter = vueRouter;
-        
+
         given(container, "container").ensureHasValue().ensureIsObject();
         this._container = container;
-        
-        given(componentManager, "componentManager").ensureHasValue().ensureIsObject();
-        this._componentManager = componentManager;
     }
 
 
-    public registerPages(...pageViewModelClasses: Array<Function>): void
+    public registerPages(...pageViewModelClasses: Array<PageViewModelClass<any>>): void
     {
         this._pageViewModelClasses.push(...pageViewModelClasses);
     }
@@ -64,24 +56,6 @@ export class PageManager
         this._unknownRoute = route.trim();
     }
 
-    // /**
-    //  * @deprecated
-    //  */
-    // public useAsDefaultPageTitle(title: string): void
-    // {
-    //     given(title, "title").ensureHasValue().ensureIsString();
-    //     this._defaultPageTitle = title.trim();
-    // }
-
-    // /**
-    //  * @deprecated
-    //  */
-    // public useAsDefaultPageMetadata(metas: ReadonlyArray<{ name: string; content: string; }>): void
-    // {
-    //     given(metas, "metas").ensureHasValue().ensureIsArray().ensure(t => t.length > 0);
-    //     this._defaultPageMetas = [...metas];
-    // }
-
     public useHistoryModeRouting(): void
     {
         this._useHistoryMode = true;
@@ -95,13 +69,11 @@ export class PageManager
 
         this._createRouting();
         this._configureResolves();
-        // this.configureInitialRoute();
     }
-    
 
-    private _registerPage(pageViewModelClass: Function): void
+
+    private _registerPage(pageViewModelClass: PageViewModelClass<any>): void
     {
-        // const registration = new PageRegistration(pageViewModelClass, this._defaultPageTitle, this._defaultPageMetas);
         const registration = new PageRegistration(pageViewModelClass, null, null);
 
         if (this._registrations.some(t => t.name === registration.name))
@@ -111,12 +83,12 @@ export class PageManager
             throw new ApplicationException(`Route conflict detected for Page registration with name '${registration.name}'`);
 
         this._registrations.push(registration);
-        
+
         if (registration.persist)
             this._container.registerSingleton(registration.name, registration.viewModel);
         else
             this._container.registerTransient(registration.name, registration.viewModel);
-        
+
         if (registration.resolvers && registration.resolvers.isNotEmpty)
             registration.resolvers.forEach(t =>
             {
@@ -126,10 +98,13 @@ export class PageManager
                 this._container.registerTransient(t.name, t.value);
                 this._resolvers.push(t.name);
             });
-        
-        if (registration.components && registration.components.isNotEmpty)
-            this._componentManager.registerComponents(...registration.components);
-        
+
+        if (registration.localComponentRegistrations.isNotEmpty)
+        {
+            registration.localComponentRegistrations
+                .forEach(t => this._registerLocalComponentViewModel(t));
+        }
+
         if (registration.pages && registration.pages.isNotEmpty)
             registration.pages.forEach(t => this._registerPage(t));
     }
@@ -141,19 +116,21 @@ export class PageManager
         if (this._initialRoute)
             vueRouterRoutes.push({ path: "/", redirect: this._initialRoute });
         if (this._unknownRoute)
-            vueRouterRoutes.push({ path: "*", redirect: this._unknownRoute });
-        const vueRouter = this._vueRouter;
-        const routerOptions: any = {
+            vueRouterRoutes.push({ path: "/:unknown(.*)", redirect: this._unknownRoute });
+
+        const routeHistory = this._useHistoryMode ? createWebHistory() : createWebHashHistory();
+
+        this._vueRouterInstance = createRouter({
+            history: routeHistory,
             routes: vueRouterRoutes,
-            scrollBehavior: function (_to: any, _from: any, _savedPosition: any)
+            scrollBehavior: function (_, __, ___)
             {
-                return { x: 0, y: 0 };
+                return {
+                    top: 0,
+                    left: 0
+                };
             }
-        };
-        if (this._useHistoryMode)
-            routerOptions.mode = "history";
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        this._vueRouterInstance = new vueRouter(routerOptions);
+        });
     }
 
     private _createPageTree(): ReadonlyArray<Page>
@@ -165,98 +142,61 @@ export class PageManager
 
     private _configureResolves(): void
     {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        this._vueRouterInstance!.beforeEach((to: any, from: any, next: Function) =>
+        this._vueRouterInstance!.beforeEach(async (to, from) =>
         {
-            const registrationName = to.name + "ViewModel";
+            const registrationName = to.name!.toString();
             const registration = this._registrations.find(t => t.name === registrationName);
             if (registration == null)
                 throw new ApplicationException(`Unable to find PageRegistration with name '${registrationName}'`);
             registration.resolvedValues = null;
+
             if (registration.resolvers && registration.resolvers.length > 0)
             {
                 const resolvers = registration.resolvers.map(t => this._container.resolve<Resolver>(t.name));
-                resolvers
-                    .mapAsync(async t =>
+                const resolutions = await resolvers
+                    .mapAsync(t =>
                     {
-                        try 
-                        {
-                            const resolution = await t.resolve(from, to);
-                            return resolution;
-                        }
-                        catch (error)
-                        {
-                            return false;
-                        }
-                    })
-                    .then(resolutions =>
-                    {
-                        if (resolutions.some(t => t === false))
-                        {
-                            next(false);
-                            return;
-                        }
-                        
-                        const redirectRes = resolutions.find(t => !!(<Resolution>t).redirect);
-                        if (redirectRes && redirectRes.redirect)
-                        {
-                            next(redirectRes.redirect);
-                            return;
-                        }
-                        
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                        registration.resolvedValues = resolutions.filter(t => (<any>t).value != null).map(t => (<Resolution>t).value);
-                        next();
-                    })
-                    .catch(() =>
-                    {
-                        next(false);
+                        // don't need to catch this error adn return false
+                        // now if an error is thrown then it will cancel the navigation.
+                        // also the error will be reported to the router, 
+                        // which can be caught and logged from the global handler and won't be swallowed 
+                        return t.resolve(from, to);
+                        //     try 
+                        //     {
+                        //         const resolution = await t.resolve(from, to);
+                        //         return resolution;
+                        //     }
+                        //     catch (error)
+                        //     {
+                        //         return false;
+                        //     }
                     });
+
+                const redirectResolution = resolutions.find(t => !!t.redirect);
+                if (redirectResolution != null && redirectResolution.redirect != null)
+                    return {
+                        path: redirectResolution.redirect
+                    };
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                registration.resolvedValues = resolutions.where(t => t.value != null).map(t => t.value);
             }
-            else
-            {
-                next();
-            }
+
+            return true;
         });
     }
 
-    // public handleInitialRoute(): void
-    // {
-    //     if (!this._initialRoute || this._initialRoute.isEmptyOrWhiteSpace())
-    //         return;
+    private _registerLocalComponentViewModel(registration: ComponentRegistration): void
+    {
+        if (registration.persist)
+            this._container.registerSingleton(registration.name, registration.viewModel);
+        else
+            this._container.registerTransient(registration.name, registration.viewModel);
 
-    //     if (this._useHistoryMode)
-    //     {
-    //         if (!window.location.pathname || window.location.pathname.toString().isEmptyOrWhiteSpace() ||
-    //             window.location.pathname.toString().trim() === "/" || window.location.pathname.toString().trim() === "null")
-    //             this._vueRouterInstance.replace(this._initialRoute);
-
-    //         return;
-    //     }
-
-    //     if (!window.location.hash)
-    //     {
-    //         if (this._initialRoute)
-    //             window.location.hash = "#" + this._initialRoute;
-    //     }
-    //     else
-    //     {
-    //         let hashVal = window.location.hash.trim();
-    //         if (hashVal.length === 1)
-    //         {
-    //             if (this._initialRoute)
-    //                 window.location.hash = "#" + this._initialRoute;
-    //         }
-    //         else
-    //         {
-    //             hashVal = hashVal.substr(1);
-    //             if (hashVal === "/")
-    //             {
-    //                 if (this._initialRoute)
-    //                     window.location.hash = "#" + this._initialRoute;
-    //             }
-    //         }
-    //     }
-    // }
+        // registering local components
+        if (registration.localComponentRegistrations.isNotEmpty)
+            registration.localComponentRegistrations
+                .forEach(t => this._registerLocalComponentViewModel(t));
+    }
 }
 
