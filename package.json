@@ -93,6 +93,7 @@
         "@types/toastr": "^2.1.39",
         "@typescript-eslint/eslint-plugin": "^6.15.0",
         "@typescript-eslint/parser": "^6.15.0",
+        "@vitejs/plugin-vue": "^5.0.3",
         "@vue/compiler-sfc": "^3.4.15",
         "autoprefixer": "^10.4.17",
         "concurrently": "^8.2.2",
@@ -108,9 +109,12 @@
         "vite-plugin-inspect": "^0.8.2",
         "vite-plugin-node-polyfills": "^0.19.0",
         "vite-plugin-require": "^1.1.14",
-        "vite-plugin-top-level-await": "^1.4.1"
+        "vite-plugin-top-level-await": "^1.4.1",
+        "vite-plugin-vuetify": "^2.0.1",
+        "vuetify": "^3.5.2"
     },
     "dependencies": {
+        "@mdi/font": "^7.4.47",
         "@nivinjoseph/n-config": "^2.0.1",
         "@nivinjoseph/n-defensive": "^2.0.1",
         "@nivinjoseph/n-exception": "^2.0.1",

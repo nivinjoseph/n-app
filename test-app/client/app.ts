@@ -10,15 +10,30 @@ import * as Routes from "./pages/routes.js";
 // import { BindingTestViewModel } from "./components/binding-test/binding-test-view-model";
 import { ScopedService } from "./services/scoped-service.js";
 import { RedirectViewModel } from "./pages/redirect/redirect-view-model.js";
+import "@mdi/font/css/materialdesignicons.css";
+import "vuetify/styles";
+import { createVuetify, type ThemeDefinition } from "vuetify";
+import { TestVuetifyViewModel } from "./pages/test-vuetify/test-vuetify-view-model.js";
 
 
+const darkTheme: ThemeDefinition = {
+    dark: false,
+    colors: {
+        primary: "#1976d2",
+        error: "#F44336",
+        warning: "#FFEB3B",
+        accent: "#0d47a1"
+    }
+};
 
-// Vue.material.registerTheme("default", {
-//     primary: "blue",
-//     accent: "red",
-//     warn: "red",
-//     background: "grey"
-// });
+const vuetify = createVuetify({
+    theme: {
+        defaultTheme: "darkTheme",
+        themes: {
+            darkTheme
+        }
+    }
+});
 
 class Installer implements ComponentInstaller
 {
@@ -31,7 +46,7 @@ class Installer implements ComponentInstaller
     }
 }
 
-const pages = [DashboardViewModel, TestViewModel, TodoViewModel, RedirectViewModel];
+const pages = [DashboardViewModel, TestViewModel, TodoViewModel, RedirectViewModel, TestVuetifyViewModel];
 // const pages = [DashboardViewModel, TestViewModel];
 
 const dialogService = new DefaultDialogService({
@@ -48,8 +63,9 @@ const app = new ClientApp("#app", "router-view")
     .registerComponents(ScoreBoardViewModel)
     .registerPages(...pages)
     .useHistoryModeRouting()
-    .useAsInitialRoute(Routes.dashboard)
+    .useAsInitialRoute(Routes.testVuetify)
     .useAsUnknownRoute(Routes.test)
+    .usePlugin(vuetify)
     // .useAsDefaultPageTitle("fooo")
     // .useAsDefaultPageMetadata({name: "description", content: "this is the default description"})
     ;

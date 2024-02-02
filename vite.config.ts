@@ -11,6 +11,8 @@ import { ViteNAppBabelPlugin } from "./src/plugins/vite-n-app-babel-plugin.js";
 import { ViteNAppViewPlugin } from "./src/plugins/vite-n-app-view-plugin.js";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import checker from "vite-plugin-checker";
+import vue from "@vitejs/plugin-vue";
+import vuetify from "vite-plugin-vuetify";
 
 
 const VitePluginRequire: typeof vitePluginRequireRaw = (vitePluginRequireRaw as any).default;
@@ -104,6 +106,10 @@ export default defineConfig({
             typescript: {
                 tsconfigPath: "./tsconfig.client.json"
             }
+        }),
+        vue(),
+        vuetify({
+            autoImport: true
         })
     ],
     define: {
