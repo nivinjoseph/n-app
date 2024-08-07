@@ -1,6 +1,6 @@
 // public
 /**
- * Representation of vue-router Route Object (https://router.vuejs.org/api/#route-object-properties)
+ * Representation of vue-router Route Object (https://router.vuejs.org/api/interfaces/RouteLocationNormalized.html)
  */
 export interface NavRoute
 {
@@ -9,6 +9,6 @@ export interface NavRoute
     query: Record<string, any>;
     hash: string;
     fullPath: string;
-    name?: string;
-    redirectedFrom?: string;
+    name?: string | symbol | null;
+    redirectedFrom?: NavRoute;
 }

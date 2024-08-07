@@ -1,8 +1,12 @@
 <div class="test-view">
     <h3>This is a test</h3>
+    <p>
+    
+        Scoped ServiceValue = {{scopedServiceValue}}
+    </p>
     <router-link to="/dashboard">Go to Dashboard</router-link>
     <button v-on:click="go(id)">To Test {{players[0].name}}</button>
-    <n-file-select id="foo" mime-types=".xlsx" :max-file-size="500" @select="onFileSelected"></n-file-select>
+    <n-file-select id="foo" mime-types=".xlsx, image/jpg" :max-file-size="500" @select="onFileSelected"></n-file-select>
     <component-a :num="id" :sport="players.takeLast()"></component-a>
 
     <div v-for="player of players">
@@ -25,7 +29,9 @@
         <component-a :num="id" :sport="player"></component-a>
         <component-a :num="id" :sport="player"></component-a>
     </div> -->
-
+    
+    <button class="button" @click="redirectTest">Redirect test</button>
+    
     <non-reorderable-list :list-items="players">
         <template #list-item-1="pro">
             <p>{{pro.item.data.name}}</p>

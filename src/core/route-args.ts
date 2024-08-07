@@ -1,5 +1,5 @@
-import { RouteInfo } from "./route-info";
-import { HttpException } from "./http-exception";
+import { RouteInfo } from "./route-info.js";
+import { HttpException } from "./http-exception.js";
 import { given } from "@nivinjoseph/n-defensive";
 import "@nivinjoseph/n-ext";
 

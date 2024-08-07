@@ -1,5 +1,5 @@
 import "@nivinjoseph/n-ext";
-import { PageViewModel } from "../../../src/index";
+import { PageViewModel } from "../../../src/index.js";
 
 
 export class BasePageViewModel extends PageViewModel

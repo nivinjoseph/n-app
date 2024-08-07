@@ -5,3 +5,5 @@ test-app/client/dist
 
 *.temp.ts
 test-app/client/3rd-party
+
+*.d.ts

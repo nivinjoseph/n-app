@@ -1,15 +1,18 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { ComponentService } from "./component-service";
-import { ViewModelRegistration } from "../../core/view-model-registration";
-import { Container, Scope } from "@nivinjoseph/n-ject";
 import { ApplicationException } from "@nivinjoseph/n-exception";
-import { Utilities } from "../../core/utilities";
-import { ComponentOptions } from "./component-options";
+import type { Scope } from "@nivinjoseph/n-ject";
+import { inject, ref, type ComponentOptions as VueComponentOptions, type Ref, type UnwrapRef } from "vue";
+import type { BaseViewModel } from "../../core/base-view-model.js";
+import type { ComponentViewModelClass } from "../../core/component-view-model.js";
+import { Utilities } from "../../core/utilities.js";
+import { ViewModelRegistration } from "../../core/view-model-registration.js";
+import type { ComponentService } from "./component-service.js";
+import type { ComponentOptions } from "./component-options.js";
 
 
 export class DefaultComponentService implements ComponentService
 {
-    public compile(componentViewModelClass: Function, cache?: boolean): ComponentOptions
+    public compile(componentViewModelClass: ComponentViewModelClass<any>, cache?: boolean): ComponentOptions
     {
         given(componentViewModelClass, "componentViewModelClass").ensureHasValue().ensureIsFunction();
         given(cache as boolean, "cache").ensureIsBoolean();
@@ -25,169 +28,131 @@ export class DefaultComponentService implements ComponentService
         given(registration, "registration").ensureHasValue().ensureIsType(ViewModelRegistration);
         given(cache, "cache").ensureHasValue().ensureIsBoolean();
 
-        const component: any = {};
-        component._cache = cache;
+        const component: VueComponentOptions = {
+            setup: function <T extends BaseViewModel>(): { nAppVm: Ref<UnwrapRef<T>>; }
+            {
+                // console.log("setup for ", registration.name, this);
 
-        // component.template = registration.template;
+                const container: Scope | undefined = inject("pageScopeContainer") ?? inject("rootScopeContainer");
+                if (container == null)
+                    throw new ApplicationException("Could not get pageScopeContainer or rootScopeContainer.");
+
+                const nAppVm = container.resolve<T>(registration.name);
+
+                return {
+                    nAppVm: ref(nAppVm)
+                };
+            },
+
+            beforeCreate: function <T extends BaseViewModel>()
+            {
+                const vm = this.nAppVm as T;
+
+                const methods: { [index: string]: Function; } = {};
+                const computed: { [index: string]: { get?(): any; set?(val: any): void; }; } = {};
+
+                const propertyInfos = Utilities.getPropertyInfos(vm);
+                for (const info of propertyInfos)
+                {
+                    if (typeof info.descriptor.value === "function")
+                        methods[info.name] = (info.descriptor.value as Function).bind(vm);
+                    else if (info.descriptor.get || info.descriptor.set)
+                    {
+                        computed[info.name] = {
+                            get: info.descriptor.get ? info.descriptor.get.bind(vm) : undefined,
+                            set: info.descriptor.set ? info.descriptor.set.bind(vm) : undefined
+                        };
+                    }
+                }
+
+                this.$options.methods = methods;
+                this.$options.computed = computed;
+
+                (<any>vm)._ctx = this;
+                (<any>vm)._bindings = [];
+            },
+            created: function () 
+            {
+                if (this.nAppVm.onCreate)
+                {
+                    if (registration.persist && registration.isCreated)
+                    {
+                        // no op
+                    }
+                    else
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                        this.nAppVm.onCreate();
+                }
+
+                registration.created();
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            beforeMount: function ()
+            {
+                // console.log("beforeMount for ", registration.name, this);
+            },
+            mounted: function ()
+            {
+                // console.log("mounted for ", registration.name, this);
+
+                if (this.nAppVm.onMount)
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.nAppVm.onMount(this.$el);
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            beforeUpdate: function ()
+            {
+                // console.log("beforeUpdate for ", registration.name, this);
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            updated: function ()
+            {
+                // console.log("updated for ", registration.name, this);
+            },
+            beforeUnmount: function ()
+            {
+                // console.log("beforeUnmount for ", registration.name, this);
+
+                if (this.nAppVm.onDismount)
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.nAppVm.onDismount();
+            },
+            unmounted: function ()
+            {
+                // console.log("unmounted for ", registration.name, this);
+                if (this.nAppVm.onDestroy && !registration.persist)
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.nAppVm.onDestroy();
+
+                this.nAppVm._ctx.$options.methods = null;
+                this.nAppVm._ctx.$options.computed = null;
+                // this.vm._ctx = null;
+                this.nAppVm = null;
+            },
+            data: function (vm)
+            {
+                // console.log("data", vm);
+                // don't need this here but exposing it so we can check the properties 
+                // when using vue dev tools in the browsers.
+                return {
+                    vm: vm.nAppVm
+                };
+            },
+            activated: function () 
+            {
+                // console.log("activated", registration.name);
+            },
+            deactivated: function () 
+            {
+                // console.log("deactivated", registration.name);
+            }
+        };
 
         if (typeof registration.template === "string")
-        {
             component.template = registration.template;
-        }
         else
-        {
-            component.render = registration.template.render;
-            component.staticRenderFns = registration.template.staticRenderFns;
-        }
+            component.render = registration.template;
 
-        component.inject = ["pageScopeContainer", "rootScopeContainer"];
-
-        component.data = function (): { vm: any; }
-        {
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            const vueVm = this;
-
-            const container: Scope | null = vueVm.pageScopeContainer || vueVm.rootScopeContainer;
-            if (!container)
-                throw new ApplicationException("Could not get pageScopeContainer or rootScopeContainer.");
-
-            if (component.___reload)
-            {
-                const c = container as Container;
-                // @ts-expect-error: deliberately accessing protected member
-                const cReg = c.componentRegistry.find(registration.name)!;
-                // @ts-expect-error: deliberately accessing private member
-                cReg._component = component.___viewModel;
-                // @ts-expect-error: deliberately calling private method and accessing private member
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                cReg._dependencies = cReg._getDependencies();
-
-                component._cachedVm = null;
-
-                // registration.reload(component.___viewModel);
-
-                component.___reload = false;
-            }
-
-            let vm: any = null;
-            if (component._cache)
-            {
-                if (component._cachedVm)
-                    vm = component._cachedVm;
-                else
-                    vm = component._cachedVm = container.resolve<any>(registration.name);
-            }
-            else
-            {
-                vm = container.resolve<any>(registration.name);
-            }
-
-            const data = { vm: vm };
-            const methods: { [index: string]: any; } = {};
-            const computed: { [index: string]: any; } = {};
-
-            const propertyInfos = Utilities.getPropertyInfos(vm);
-            for (const info of propertyInfos)
-            {
-                if (typeof info.descriptor.value === "function")
-                    methods[info.name] = (info.descriptor.value as Function).bind(vm);
-                else if (info.descriptor.get || info.descriptor.set)
-                {
-                    computed[info.name] = {
-                        get: info.descriptor.get ? info.descriptor.get.bind(vm) : undefined,
-                        set: info.descriptor.set ? info.descriptor.set.bind(vm) : undefined
-                    };
-                }
-            }
-
-            vueVm.$options.methods = methods;
-            vueVm.$options.computed = computed;
-            vm._ctx = vueVm;
-            vm._bindings = [];
-
-            return data;
-        };
-
-
-        component.beforeCreate = function (): void
-        {
-            // console.log("executing beforeCreate");
-            // console.log(this.vm);
-        };
-
-        component.created = function (): void
-        {
-            // console.log("executing created");
-            // console.log(this.vm);
-
-            if (this.vm.onCreate)
-            {
-                if (registration.persist && registration.isCreated)
-                {
-                    // no op
-                }
-                else
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    this.vm.onCreate();
-            }
-
-            registration.created();
-        };
-
-        component.beforeMount = function (): void
-        {
-            // console.log("executing beforeMount");
-            // console.log(this.vm);
-        };
-
-        component.mounted = function (): void
-        {
-            // console.log("executing mounted");
-            // console.log(this.vm);
-
-            if (this.vm.onMount)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onMount(this.$el);
-        };
-
-        component.beforeUpdate = function (): void
-        {
-            // console.log("executing beforeUpdate");
-            // console.log(this.vm);
-        };
-
-        component.updated = function (): void
-        {
-            // console.log("executing updated");
-            // console.log(this.vm);
-        };
-
-        component.beforeDestroy = function (): void
-        {
-            // console.log("executing beforeDestroy");
-            // console.log(this.vm);
-
-            if (this.vm.onDismount)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onDismount();
-        };
-
-        component.destroyed = function (): void
-        {
-            // console.log("executing destroyed");
-            // console.log(this.vm);
-
-            if (this.vm.onDestroy && !registration.persist)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onDestroy();
-
-            this.vm._ctx.$options.methods = null;
-            this.vm._ctx.$options.computed = null;
-            // this.vm._ctx = null;
-            this.vm = null;
-        };
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return component;
     }
 }

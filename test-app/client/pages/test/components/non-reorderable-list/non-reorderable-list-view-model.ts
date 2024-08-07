@@ -1,5 +1,5 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { bind, ComponentViewModel, element, template } from "../../../../../../src";
+import { bind, ComponentViewModel, element, template } from "../../../../../../src/index.js";
 import "./non-reorderable-list-view.scss";
 
 // type OnReorderCallback = (fromIndex: number, toIndex: number) => void;

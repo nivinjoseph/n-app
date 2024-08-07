@@ -2,6 +2,9 @@
     "extends": "./tsconfig.json",
     "include": [
         "src/**/*",
-        "test-app/client/**/*"
-    ]
+        "test-app/client/**/*",
+    ],
+    "compilerOptions": {
+        "noEmit": true
+    }
 }

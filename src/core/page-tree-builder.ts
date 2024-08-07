@@ -1,6 +1,6 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { Page } from "./page";
-import { PageRegistration } from "./page-registration";
+import { Page } from "./page.js";
+import { PageRegistration } from "./page-registration.js";
 
 
 export class PageTreeBuilder

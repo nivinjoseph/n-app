@@ -1,11 +1,11 @@
 <div class="file-uploader">
-    <n-file-select id="fileField" mime-types="image/jpg, .pdf, video/*" :max-file-size="500" @select="onFileSelected"
+    <!-- <n-file-select id="fileField" mime-types="image/jpg, .pdf, video/*" :max-file-size="500" @select="onFileSelected"
         @processing-started="onProcessing" @processing-completed="onProcessed">
-    </n-file-select>
+    </n-file-select> -->
     <label v-if="isProcessing" class="processing-text">
         Processing
     </label>
-    <label v-else-if="file">{{file.fileName}}</label>
+    <!-- <label v-else-if="file">{{file.fileName}}</label> -->
     <label v-else>Please select a file</label>
     <button @click="uploadFile">Upload File</button>
 </div>
