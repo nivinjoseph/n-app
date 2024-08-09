@@ -1,6 +1,7 @@
 import { given } from "@nivinjoseph/n-defensive";
-import { PageRegistration } from "./page-registration";
-// import { PageComponentFactory } from "./page-component-factory";
+import { PageRegistration } from "./page-registration.js";
+import type { RouteRecordRaw, RouteRecordRedirect, RouteRecordSingleViewWithChildren } from "vue-router";
+import { PageComponentFactory } from "./page-component-factory.js";
 
 
 export class Page
@@ -21,8 +22,8 @@ export class Page
     {
         given(segment, "segment").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         this._segment = segment;
-        
-        given(parent as Page, "parent").ensureIsType(Page);
+
+        given(parent, "parent").ensureIsType(Page);
         if (parent)
             this.changeParent(parent);
     }
@@ -53,53 +54,54 @@ export class Page
     {
         if (this._parent)
             this._parent.removeChild(this);
-        
+
         this._parent = parent;
-        
+
         if (this._parent)
             this._parent.addChild(this);
     }
-    
-    public createVueRouterRoute(): object
+
+    public createVueRouterRoute(): RouteRecordRaw
     {
         // let factory = new PageComponentFactory(container);
-        // let factory = new PageComponentFactory();
-        
+        const factory = new PageComponentFactory();
+
         given(this, "this").ensure(t => t._registration != null, "no registration present");
-        
-        const vueRouterRoute: any = {
-            name: this._registration!.name.replace("ViewModel", ""),
+
+        const component = factory.create(this.registration!);
+        const vueRouterRoute: RouteRecordRaw = {
+            name: this._registration!.name,
             path: this._createRoute(),
-            // component: factory.create(this._registration)
-            component: (<any>this._registration!.viewModel).___componentOptions
+            component,
+            children: []
         };
-        
+
         if (this._registration!.redirect)
         {
-            vueRouterRoute.redirect = (to: any): string =>
+            (vueRouterRoute as unknown as RouteRecordRedirect).redirect = (to): string =>
             {
                 // we can do this because redirect has to be a nested route
                 return to.path + this._registration!.redirect!.replace(this._registration!.route.route, "");
             };
         }
-        
+
         if (this._children.length > 0)
-            vueRouterRoute.children = this._children.map(t => t.createVueRouterRoute());
-        
-        return vueRouterRoute as object;
+            (vueRouterRoute as unknown as RouteRecordSingleViewWithChildren).children = this._children.map(t => t.createVueRouterRoute());
+
+        return vueRouterRoute;
     }
-    
-    
+
+
     private _createRoute(): string
     {
         let route = this._registration!.route.vueRoute;
         if (!this._parent)
             return route;
-        
+
         route = route.replace(this._parent.registration!.route.vueRoute, "");
         if (route.startsWith("/"))
             route = route.substr(1);
-        
+
         return route;
     }
 }

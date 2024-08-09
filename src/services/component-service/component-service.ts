@@ -1,4 +1,4 @@
-import { ComponentOptions } from "./component-options";
+import type { ComponentOptions } from "./component-options.js";
 
 // public
 export interface ComponentService

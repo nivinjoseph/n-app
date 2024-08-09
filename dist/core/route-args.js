@@ -1,21 +1,22 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.RouteArgs = void 0;
-const http_exception_1 = require("./http-exception");
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-require("@nivinjoseph/n-ext");
-class RouteArgs {
+import { RouteInfo } from "./route-info.js";
+import { HttpException } from "./http-exception.js";
+import { given } from "@nivinjoseph/n-defensive";
+import "@nivinjoseph/n-ext";
+export class RouteArgs {
+    _pathArgs;
+    _queryArgs;
+    _routeArgs;
+    get pathArgs() { return this._pathArgs; }
+    get queryArgs() { return this._queryArgs; }
+    get routeArgs() { return this._routeArgs; }
     constructor(pathArgs, queryArgs, routeArgs) {
-        (0, n_defensive_1.given)(pathArgs, "pathArgs").ensureHasValue().ensureIsObject();
-        (0, n_defensive_1.given)(queryArgs, "queryArgs").ensureHasValue().ensureIsObject();
-        (0, n_defensive_1.given)(routeArgs, "routeArgs").ensureHasValue().ensureIsArray();
+        given(pathArgs, "pathArgs").ensureHasValue().ensureIsObject();
+        given(queryArgs, "queryArgs").ensureHasValue().ensureIsObject();
+        given(routeArgs, "routeArgs").ensureHasValue().ensureIsArray();
         this._pathArgs = pathArgs;
         this._queryArgs = queryArgs;
         this._routeArgs = routeArgs;
     }
-    get pathArgs() { return this._pathArgs; }
-    get queryArgs() { return this._queryArgs; }
-    get routeArgs() { return this._routeArgs; }
     static create(route, ctx) {
         // console.log("ctx", ctx);
         const queryArgs = Object.assign({}, ctx.query);
@@ -50,7 +51,7 @@ class RouteArgs {
             let value = model[routeParam.paramKey];
             if (value === undefined || value === null) {
                 if (!routeParam.isOptional)
-                    throw new http_exception_1.HttpException(404);
+                    throw new HttpException(404);
                 value = null;
             }
             routeArgs.push(value);
@@ -58,7 +59,7 @@ class RouteArgs {
         return new RouteArgs(pathArgs, queryArgs, routeArgs);
     }
     equals(comparison) {
-        (0, n_defensive_1.given)(comparison, "comparison").ensureHasValue().ensureIsType(RouteArgs);
+        given(comparison, "comparison").ensureHasValue().ensureIsType(RouteArgs);
         const current = this._createParamsArray(this);
         const compare = this._createParamsArray(comparison);
         return current.equals(compare);
@@ -71,5 +72,4 @@ class RouteArgs {
         return params.orderBy(t => t[0]);
     }
 }
-exports.RouteArgs = RouteArgs;
 //# sourceMappingURL=route-args.js.map

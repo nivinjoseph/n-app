@@ -1,17 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ComponentManager = void 0;
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-const component_registration_1 = require("./component-registration");
-const n_exception_1 = require("@nivinjoseph/n-exception");
+import { given } from "@nivinjoseph/n-defensive";
+import { ApplicationException } from "@nivinjoseph/n-exception";
+import { Container } from "@nivinjoseph/n-ject";
+import { ComponentRegistration } from "./component-registration.js";
+import { ComponentFactory } from "./component-factory.js";
 // import { ComponentFactory } from "./component-factory";
-class ComponentManager {
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    constructor(vue, container) {
-        this._registrations = new Array();
-        (0, n_defensive_1.given)(vue, "vue").ensureHasValue();
-        (0, n_defensive_1.given)(container, "container").ensureHasValue();
-        this._vue = vue;
+export class ComponentManager {
+    _vueApp;
+    _container;
+    _registrations = new Array();
+    constructor(vueApp, container) {
+        given(vueApp, "vueApp").ensureHasValue().ensureIsObject();
+        this._vueApp = vueApp;
+        given(container, "container").ensureHasValue();
         this._container = container;
     }
     registerComponents(...componentViewModelClasses) {
@@ -19,27 +19,29 @@ class ComponentManager {
             this._registerComponent(item);
     }
     bootstrap() {
-        // let componentFactory = new ComponentFactory();
         this._registrations.forEach(registration => {
-            // this._vue.component(registration.element, componentFactory.create(registration));
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this._vue.component(registration.element, registration.viewModel.___componentOptions);
+            const componentFactory = new ComponentFactory();
+            this._vueApp.component(registration.element, componentFactory.create(registration));
         });
     }
     _registerComponent(componentViewModelClass) {
-        const registration = new component_registration_1.ComponentRegistration(componentViewModelClass);
+        const registration = new ComponentRegistration(componentViewModelClass);
         if (this._registrations.some(t => t.name === registration.name))
-            throw new n_exception_1.ApplicationException(`Duplicate Component registration with name '${registration.name}'.`);
+            throw new ApplicationException(`Duplicate Component registration with name '${registration.name}'.`);
         if (this._registrations.some(t => t.element === registration.element))
-            throw new n_exception_1.ApplicationException(`Duplicate Component registration with element '${registration.element}'`);
+            throw new ApplicationException(`Duplicate Component registration with element '${registration.element}'`);
         this._registrations.push(registration);
+        this._registerComponentViewModel(registration);
+    }
+    _registerComponentViewModel(registration) {
         if (registration.persist)
             this._container.registerSingleton(registration.name, registration.viewModel);
         else
             this._container.registerTransient(registration.name, registration.viewModel);
-        if (registration.components != null && registration.components.isNotEmpty)
-            this.registerComponents(...registration.components);
+        // registering local components
+        if (registration.localComponentRegistrations.isNotEmpty)
+            registration.localComponentRegistrations
+                .forEach(t => this._registerComponentViewModel(t));
     }
 }
-exports.ComponentManager = ComponentManager;
 //# sourceMappingURL=component-manager.js.map

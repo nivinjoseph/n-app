@@ -1,137 +1,114 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DefaultComponentService = void 0;
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-const view_model_registration_1 = require("../../core/view-model-registration");
-const n_exception_1 = require("@nivinjoseph/n-exception");
-const utilities_1 = require("../../core/utilities");
-class DefaultComponentService {
+import { given } from "@nivinjoseph/n-defensive";
+import { ApplicationException } from "@nivinjoseph/n-exception";
+import { inject, ref } from "vue";
+import { Utilities } from "../../core/utilities.js";
+import { ViewModelRegistration } from "../../core/view-model-registration.js";
+export class DefaultComponentService {
     compile(componentViewModelClass, cache) {
-        (0, n_defensive_1.given)(componentViewModelClass, "componentViewModelClass").ensureHasValue().ensureIsFunction();
-        (0, n_defensive_1.given)(cache, "cache").ensureIsBoolean();
-        const registration = new view_model_registration_1.ViewModelRegistration(componentViewModelClass);
+        given(componentViewModelClass, "componentViewModelClass").ensureHasValue().ensureIsFunction();
+        given(cache, "cache").ensureIsBoolean();
+        const registration = new ViewModelRegistration(componentViewModelClass);
         return this.create(registration, !!cache);
     }
     create(registration, cache) {
-        (0, n_defensive_1.given)(registration, "registration").ensureHasValue().ensureIsType(view_model_registration_1.ViewModelRegistration);
-        (0, n_defensive_1.given)(cache, "cache").ensureHasValue().ensureIsBoolean();
-        const component = {};
-        component._cache = cache;
-        // component.template = registration.template;
-        if (typeof registration.template === "string") {
-            component.template = registration.template;
-        }
-        else {
-            component.render = registration.template.render;
-            component.staticRenderFns = registration.template.staticRenderFns;
-        }
-        component.inject = ["pageScopeContainer", "rootScopeContainer"];
-        component.data = function () {
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            const vueVm = this;
-            const container = vueVm.pageScopeContainer || vueVm.rootScopeContainer;
-            if (!container)
-                throw new n_exception_1.ApplicationException("Could not get pageScopeContainer or rootScopeContainer.");
-            if (component.___reload) {
-                const c = container;
-                // @ts-expect-error: deliberately accessing protected member
-                const cReg = c.componentRegistry.find(registration.name);
-                // @ts-expect-error: deliberately accessing private member
-                cReg._component = component.___viewModel;
-                // @ts-expect-error: deliberately calling private method and accessing private member
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                cReg._dependencies = cReg._getDependencies();
-                component._cachedVm = null;
-                // registration.reload(component.___viewModel);
-                component.___reload = false;
-            }
-            let vm = null;
-            if (component._cache) {
-                if (component._cachedVm)
-                    vm = component._cachedVm;
-                else
-                    vm = component._cachedVm = container.resolve(registration.name);
-            }
-            else {
-                vm = container.resolve(registration.name);
-            }
-            const data = { vm: vm };
-            const methods = {};
-            const computed = {};
-            const propertyInfos = utilities_1.Utilities.getPropertyInfos(vm);
-            for (const info of propertyInfos) {
-                if (typeof info.descriptor.value === "function")
-                    methods[info.name] = info.descriptor.value.bind(vm);
-                else if (info.descriptor.get || info.descriptor.set) {
-                    computed[info.name] = {
-                        get: info.descriptor.get ? info.descriptor.get.bind(vm) : undefined,
-                        set: info.descriptor.set ? info.descriptor.set.bind(vm) : undefined
-                    };
+        given(registration, "registration").ensureHasValue().ensureIsType(ViewModelRegistration);
+        given(cache, "cache").ensureHasValue().ensureIsBoolean();
+        const component = {
+            setup: function () {
+                // console.log("setup for ", registration.name, this);
+                const container = inject("pageScopeContainer") ?? inject("rootScopeContainer");
+                if (container == null)
+                    throw new ApplicationException("Could not get pageScopeContainer or rootScopeContainer.");
+                const nAppVm = container.resolve(registration.name);
+                return {
+                    nAppVm: ref(nAppVm)
+                };
+            },
+            beforeCreate: function () {
+                const vm = this.nAppVm;
+                const methods = {};
+                const computed = {};
+                const propertyInfos = Utilities.getPropertyInfos(vm);
+                for (const info of propertyInfos) {
+                    if (typeof info.descriptor.value === "function")
+                        methods[info.name] = info.descriptor.value.bind(vm);
+                    else if (info.descriptor.get || info.descriptor.set) {
+                        computed[info.name] = {
+                            get: info.descriptor.get ? info.descriptor.get.bind(vm) : undefined,
+                            set: info.descriptor.set ? info.descriptor.set.bind(vm) : undefined
+                        };
+                    }
                 }
-            }
-            vueVm.$options.methods = methods;
-            vueVm.$options.computed = computed;
-            vm._ctx = vueVm;
-            vm._bindings = [];
-            return data;
-        };
-        component.beforeCreate = function () {
-            // console.log("executing beforeCreate");
-            // console.log(this.vm);
-        };
-        component.created = function () {
-            // console.log("executing created");
-            // console.log(this.vm);
-            if (this.vm.onCreate) {
-                if (registration.persist && registration.isCreated) {
-                    // no op
+                this.$options.methods = methods;
+                this.$options.computed = computed;
+                vm._ctx = this;
+                vm._bindings = [];
+            },
+            created: function () {
+                if (this.nAppVm.onCreate) {
+                    if (registration.persist && registration.isCreated) {
+                        // no op
+                    }
+                    else
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                        this.nAppVm.onCreate();
                 }
-                else
+                registration.created();
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            beforeMount: function () {
+                // console.log("beforeMount for ", registration.name, this);
+            },
+            mounted: function () {
+                // console.log("mounted for ", registration.name, this);
+                if (this.nAppVm.onMount)
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    this.vm.onCreate();
+                    this.nAppVm.onMount(this.$el);
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            beforeUpdate: function () {
+                // console.log("beforeUpdate for ", registration.name, this);
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            updated: function () {
+                // console.log("updated for ", registration.name, this);
+            },
+            beforeUnmount: function () {
+                // console.log("beforeUnmount for ", registration.name, this);
+                if (this.nAppVm.onDismount)
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.nAppVm.onDismount();
+            },
+            unmounted: function () {
+                // console.log("unmounted for ", registration.name, this);
+                if (this.nAppVm.onDestroy && !registration.persist)
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.nAppVm.onDestroy();
+                this.nAppVm._ctx.$options.methods = null;
+                this.nAppVm._ctx.$options.computed = null;
+                // this.vm._ctx = null;
+                this.nAppVm = null;
+            },
+            data: function (vm) {
+                // console.log("data", vm);
+                // don't need this here but exposing it so we can check the properties 
+                // when using vue dev tools in the browsers.
+                return {
+                    vm: vm.nAppVm
+                };
+            },
+            activated: function () {
+                // console.log("activated", registration.name);
+            },
+            deactivated: function () {
+                // console.log("deactivated", registration.name);
             }
-            registration.created();
         };
-        component.beforeMount = function () {
-            // console.log("executing beforeMount");
-            // console.log(this.vm);
-        };
-        component.mounted = function () {
-            // console.log("executing mounted");
-            // console.log(this.vm);
-            if (this.vm.onMount)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onMount(this.$el);
-        };
-        component.beforeUpdate = function () {
-            // console.log("executing beforeUpdate");
-            // console.log(this.vm);
-        };
-        component.updated = function () {
-            // console.log("executing updated");
-            // console.log(this.vm);
-        };
-        component.beforeDestroy = function () {
-            // console.log("executing beforeDestroy");
-            // console.log(this.vm);
-            if (this.vm.onDismount)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onDismount();
-        };
-        component.destroyed = function () {
-            // console.log("executing destroyed");
-            // console.log(this.vm);
-            if (this.vm.onDestroy && !registration.persist)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onDestroy();
-            this.vm._ctx.$options.methods = null;
-            this.vm._ctx.$options.computed = null;
-            // this.vm._ctx = null;
-            this.vm = null;
-        };
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        if (typeof registration.template === "string")
+            component.template = registration.template;
+        else
+            component.render = registration.template;
         return component;
     }
 }
-exports.DefaultComponentService = DefaultComponentService;
 //# sourceMappingURL=default-component-service.js.map

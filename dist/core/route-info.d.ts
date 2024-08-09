@@ -1,5 +1,5 @@
 import "@nivinjoseph/n-ext";
-import { RouteParam } from "./route-param";
+import { RouteParam } from "./route-param.js";
 export declare class RouteInfo {
     private readonly _routeTemplate;
     private readonly _routeParams;
@@ -22,3 +22,4 @@ export declare class RouteInfo {
     private _populatePathSegments;
     private _generateRouteKey;
 }
+//# sourceMappingURL=route-info.d.ts.map

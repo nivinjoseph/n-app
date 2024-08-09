@@ -1,14 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DefaultEventAggregator = void 0;
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-class DefaultEventAggregator {
-    constructor() {
-        this._subscriptions = {};
-    }
+import { given } from "@nivinjoseph/n-defensive";
+export class DefaultEventAggregator {
+    _subscriptions = {};
     subscribe(event, handler) {
-        (0, n_defensive_1.given)(event, "event").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
-        (0, n_defensive_1.given)(handler, "handler").ensureHasValue();
+        given(event, "event").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(handler, "handler").ensureHasValue();
         event = event.trim();
         if (!this._subscriptions[event])
             this._subscriptions[event] = new Array();
@@ -23,33 +18,35 @@ class DefaultEventAggregator {
         return eventSubscriptionInternal.subscription;
     }
     publish(event, ...eventArgs) {
-        (0, n_defensive_1.given)(event, "event").ensureHasValue().ensureIsString();
+        given(event, "event").ensureHasValue().ensureIsString();
         event = event.trim();
-        (0, n_defensive_1.given)(eventArgs, "eventArgs").ensureHasValue().ensureIsArray();
+        given(eventArgs, "eventArgs").ensureHasValue().ensureIsArray();
         if (!this._subscriptions[event])
             return;
         this._subscriptions[event].forEach(t => t.handler(...eventArgs));
     }
     _unsubscribe(event, subscription) {
-        (0, n_defensive_1.given)(event, "event").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(event, "event").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         event = event.trim();
         if (!this._subscriptions[event])
             return;
         this._subscriptions[event].remove(subscription);
     }
 }
-exports.DefaultEventAggregator = DefaultEventAggregator;
 class DefaultEventSubscription {
+    _event;
+    _eventManager;
+    _subscription;
+    _isUnsubscribed = false;
+    get event() { return this._event; }
     constructor(event, eventManager, subscription) {
-        this._isUnsubscribed = false;
-        (0, n_defensive_1.given)(event, "event").ensureHasValue().ensureIsString();
+        given(event, "event").ensureHasValue().ensureIsString();
         this._event = event;
-        (0, n_defensive_1.given)(eventManager, "eventManager").ensureHasValue().ensureIsType(DefaultEventAggregator);
+        given(eventManager, "eventManager").ensureHasValue().ensureIsType(DefaultEventAggregator);
         this._eventManager = eventManager;
-        (0, n_defensive_1.given)(subscription, "subscription").ensureHasValue().ensureIsType(DefaultEventSubscriptionInternal);
+        given(subscription, "subscription").ensureHasValue().ensureIsType(DefaultEventSubscriptionInternal);
         this._subscription = subscription;
     }
-    get event() { return this._event; }
     unsubscribe() {
         if (this._isUnsubscribed)
             return;
@@ -59,5 +56,7 @@ class DefaultEventSubscription {
     }
 }
 class DefaultEventSubscriptionInternal {
+    handler;
+    subscription;
 }
 //# sourceMappingURL=default-event-aggregator.js.map

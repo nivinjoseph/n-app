@@ -1,8 +1,18 @@
 {
     "extends": "./tsconfig.json",
     "exclude": [
-        "node_modules",
-        "src/**/*",
-        "test-app/client/**/*"
-    ]
+        "./node_modules",
+        "./src/**/*",
+        "./test-app/client/**/*"
+    ],
+    "include": [
+        "./test-app/controllers/**/*",
+        "./test-app/server.ts"
+    ],
+    "compilerOptions": {
+        "target": "ES2017",
+        "lib": [
+            "ES2023"
+        ]
+    },
 }

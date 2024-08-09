@@ -1,6 +1,6 @@
-import { DisplayService } from "./display-service";
-import { DisplayType } from "./display-type";
-import { Observable } from "@nivinjoseph/n-util";
+import type { DisplayService } from "./display-service.js";
+import { DisplayType } from "./display-type.js";
+import { type Observable } from "@nivinjoseph/n-util";
 export declare class DefaultDisplayService implements DisplayService {
     private readonly _windowResizeObserver;
     private _currentDisplayType;
@@ -13,3 +13,4 @@ export declare class DefaultDisplayService implements DisplayService {
     constructor();
     private _calculateCurrentDisplayType;
 }
+//# sourceMappingURL=default-display-service.d.ts.map

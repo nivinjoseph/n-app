@@ -1,267 +1,206 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PageComponentFactory = void 0;
-const route_args_1 = require("./route-args");
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-const utilities_1 = require("./utilities");
-const n_exception_1 = require("@nivinjoseph/n-exception");
-// import * as $ from "jquery";
-const page_hmr_helper_1 = require("./page-hmr-helper");
-class PageComponentFactory {
+import { given } from "@nivinjoseph/n-defensive";
+import { ApplicationException } from "@nivinjoseph/n-exception";
+import { inject, provide, ref } from "vue";
+import { PageRegistration } from "./page-registration.js";
+import { PageViewModel } from "./page-view-model.js";
+import { RouteArgs } from "./route-args.js";
+import { Utilities } from "./utilities.js";
+import { ComponentFactory } from "./component-factory.js";
+export class PageComponentFactory {
     create(registration) {
-        (0, n_defensive_1.given)(registration, "registration").ensureHasValue();
-        const component = {};
-        // component.template = registration.template;
-        // component.render = (<any>registration.viewModel).___render;
-        // component.staticRenderFns = (<any>registration.viewModel).___staticRenderFns;
-        if (typeof registration.template === "string") {
-            component.template = registration.template;
-        }
-        else {
-            component.render = registration.template.render;
-            component.staticRenderFns = registration.template.staticRenderFns;
-        }
-        component.inject = ["rootScopeContainer"];
-        component.data = function () {
-            // console.log("INVOKED data");
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            const vueVm = this;
-            let container = vueVm.rootScopeContainer;
-            if (!container)
-                throw new n_exception_1.ApplicationException("Could not get rootScopeContainer.");
-            if (component.___reload) {
-                const c = container;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                const cReg = c.componentRegistry.find(registration.name);
-                cReg._component = component.___viewModel;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                cReg._dependencies = cReg.getDependencies();
-                // registration.reload(component.___viewModel);
-                // component.___reload = false;
-            }
-            container = registration.persist ? container : container.createScope(); // page scope
-            const vm = container.resolve(registration.name);
-            const data = {
-                vm: vm,
-                pageScopeContainer: container
-            };
-            const methods = {};
-            const computed = {};
-            const propertyInfos = utilities_1.Utilities.getPropertyInfos(vm);
-            for (const info of propertyInfos) {
-                if (typeof info.descriptor.value === "function")
-                    methods[info.name] = info.descriptor.value.bind(vm);
-                else if (info.descriptor.get || info.descriptor.set) {
-                    computed[info.name] = {
-                        get: info.descriptor.get ? info.descriptor.get.bind(vm) : undefined,
-                        set: info.descriptor.set ? info.descriptor.set.bind(vm) : undefined
-                    };
-                }
-            }
-            vueVm.$options.methods = methods;
-            vueVm.$options.computed = computed;
-            vm._ctx = vueVm;
-            return data;
-        };
-        component.provide = function () {
-            return {
-                pageScopeContainer: this.pageScopeContainer
-            };
-        };
-        component.beforeCreate = function () {
-            // console.log("executing beforeCreate");
-            // console.log(this.vm);
-        };
+        given(registration, "registration").ensureHasValue();
         const setDocumentMetadata = () => {
             if (registration.title)
                 window.document.title = registration.title;
             registration.metadata.forEach((metadata) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 $(`meta[${metadata.$key}="${metadata[metadata.$key]}"]`).remove();
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 $("head").append(`<meta ${Object.keys(metadata).where(t => t !== "$key").map(t => `${t}="${metadata[t]}"`).join(" ")}>`);
             });
         };
-        component.created = function () {
-            // console.log("executing created");
-            // console.log(this.vm);
-            if (this.vm.onCreate) {
-                if (registration.persist && registration.isCreated) {
-                    // no op
+        const component = {
+            name: registration.name,
+            // This might break when updating vue. UPDATE WITH CAUTION!
+            setup: function () {
+                let container = inject("rootScopeContainer");
+                if (container == null)
+                    throw new ApplicationException("Could not get pageScopeContainer or rootScopeContainer.");
+                container = registration.persist ? container : container.createScope(); // page scope
+                const nAppVm = container.resolve(registration.name);
+                provide("pageScopeContainer", container);
+                return {
+                    nAppVm: ref(nAppVm)
+                };
+            },
+            beforeCreate: function () {
+                // console.log("beforeCreate for ", registration.name, this);
+                const vm = this.nAppVm;
+                const methods = {};
+                const computed = {};
+                const propertyInfos = Utilities.getPropertyInfos(vm);
+                for (const info of propertyInfos) {
+                    if (typeof info.descriptor.value === "function")
+                        methods[info.name] = info.descriptor.value.bind(vm);
+                    else if (info.descriptor.get || info.descriptor.set) {
+                        computed[info.name] = {
+                            get: info.descriptor.get ? info.descriptor.get.bind(vm) : undefined,
+                            set: info.descriptor.set ? info.descriptor.set.bind(vm) : undefined
+                        };
+                    }
                 }
-                else
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    this.vm.onCreate();
-            }
-            registration.created();
-            if (component.___reload) {
-                component.___reload = false;
-                setDocumentMetadata();
-                const routeArgs = page_hmr_helper_1.PageHmrHelper.restore(registration);
-                this.vm.__routeArgs = routeArgs;
-                if (this.vm.onEnter) {
-                    if (routeArgs.routeArgs.isNotEmpty)
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                        this.vm.onEnter(...routeArgs.routeArgs, ...registration.resolvedValues ? registration.resolvedValues : []);
+                this.$options.methods = methods;
+                this.$options.computed = computed;
+                vm._ctx = this;
+            },
+            created: function () {
+                if (this.nAppVm.onCreate) {
+                    if (registration.persist && registration.isCreated) {
+                        // no op
+                    }
                     else
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                        this.vm.onEnter();
+                        this.nAppVm.onCreate();
                 }
-            }
-        };
-        component.beforeMount = function () {
-            // console.log("executing beforeMount");
-            // console.log(this.vm);
-        };
-        component.mounted = function () {
-            // console.log("executing mounted");
-            // console.log(this.vm);
-            if (this.vm.onMount)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onMount(this.$el);
-        };
-        component.beforeUpdate = function () {
-            // console.log("executing beforeUpdate");
-            // console.log(this.vm);
-        };
-        component.updated = function () {
-            // console.log("executing updated");
-            // console.log(this.vm);
-        };
-        component.beforeDestroy = function () {
-            // console.log("executing beforeDestroy");
-            // console.log(this.vm);
-            if (this.vm.onDismount)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onDismount();
-        };
-        component.destroyed = function () {
-            // console.log("executing destroyed");
-            // console.log(this.vm);
-            if (this.vm.onDestroy && !registration.persist)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.vm.onDestroy();
-            this.vm._ctx.$options.methods = null;
-            this.vm._ctx.$options.computed = null;
-            // this.vm._ctx = null;
-            this.vm = null;
-        };
-        /* The Full Navigation Resolution Flow
-                Navigation triggered
-                Call leave guards in deactivated components
-                Call global beforeEach guards
-                Call beforeRouteUpdate guards in reused components (2.2+)
-                Call beforeEnter in route configs
-                Resolve async route components
-                Call beforeRouteEnter in activated components
-                Call global beforeResolve guards (2.5+)
-                Navigation confirmed.
-                Call global afterEach hooks.
-                DOM updates triggered.
-                Call callbacks passed to next in beforeRouteEnter guards with instantiated instances.
-         */
-        component.beforeRouteEnter = function (to, _from, next) {
-            // called before the route that renders this component is confirmed.
-            // does NOT have access to `this` component instance,
-            // because it has not been created yet when this guard is called!
-            let routeArgs = null;
-            try {
-                routeArgs = route_args_1.RouteArgs.create(registration.route, to);
-            }
-            catch (error) {
-                console.error(error);
-                next(false);
-                return;
-            }
-            setDocumentMetadata();
-            next((vueModel) => {
+                registration.created();
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            beforeMount: function () {
+                // console.log("beforeMount for ", registration.name, this);
+            },
+            mounted: function () {
+                // console.log("mounted for ", registration.name, this);
+                if (this.nAppVm.onMount)
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.nAppVm.onMount(this.$el);
+            },
+            beforeUpdate: function () {
+                // console.log("beforeUpdate for ", registration.name, this);
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            updated: function () {
+                // console.log("updated for ", registration.name, this);
+            },
+            beforeUnmount: function () {
+                // console.log("beforeUnmount for ", registration.name, this);
+                if (this.nAppVm.onDismount)
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.nAppVm.onDismount();
+            },
+            unmounted: function () {
+                // console.log("unmounted for ", registration.name, this);
+                if (this.nAppVm.onDestroy && !registration.persist)
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.nAppVm.onDestroy();
+                this.nAppVm._ctx.$options.methods = null;
+                this.nAppVm._ctx.$options.computed = null;
+                // this.vm._ctx = null;
+                this.nAppVm = null;
+            },
+            activated: function () {
+                // console.log("activated", registration.name);
+            },
+            deactivated: function () {
+                // console.log("deactivated", registration.name);
+            },
+            data: function (vm) {
+                // console.log("data", vm);
+                // don't need this here but exposing it so we can check the properties
+                // when using vue dev tools in the browsers.
+                return {
+                    vm: vm.nAppVm
+                };
+            },
+            /* The Full Navigation Resolution Flow
+             Navigation triggered.
+             Call beforeRouteLeave guards in deactivated components.
+             Call global beforeEach guards.
+             Call beforeRouteUpdate guards in reused components.
+             Call beforeEnter in route configs.
+             Resolve async route components.
+             Call beforeRouteEnter in activated components.
+             Call global beforeResolve guards.
+             Navigation is confirmed.
+             Call global afterEach hooks.
+             DOM updates triggered.
+             Call callbacks passed to next in beforeRouteEnter guards with instantiated instances.
+             */
+            beforeRouteEnter: function (to, _, next) {
+                // called before the route that renders this component is confirmed.
+                // does NOT have access to `this` component instance,
+                // because it has not been created yet when this guard is called!
+                const routeArgs = RouteArgs.create(registration.route, to);
                 setDocumentMetadata();
-                const vm = vueModel.vm;
-                vm.__routeArgs = routeArgs;
-                // console.log("invoked on enter", routeArgs);
-                if (module.hot)
-                    page_hmr_helper_1.PageHmrHelper.track(registration, routeArgs);
-                if (vm.onEnter)
-                    if (routeArgs.routeArgs.isNotEmpty)
+                // The beforeRouteEnter guard does NOT have access to this,
+                // because the guard is called before the navigation is confirmed,
+                // thus the new entering component has not even been created yet.
+                // However, you can access the instance by passing a callback to next.
+                // The callback will be called when the navigation is confirmed, 
+                // and the component instance will be passed to the callback as the argument
+                next((vueVm) => {
+                    setDocumentMetadata();
+                    const vm = vueVm.nAppVm;
+                    vm.__routeArgs = routeArgs;
+                    if (vm.onEnter) {
+                        if (routeArgs.routeArgs.isNotEmpty)
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                            vm.onEnter(...routeArgs.routeArgs, ...registration.resolvedValues != null ? registration.resolvedValues : []);
+                        else
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                            vm.onEnter();
+                    }
+                });
+            },
+            beforeRouteUpdate: function (to, from) {
+                // called when the route that renders this component has changed, but this component is reused in the new route.
+                // For example, given a route with params `/users/:id`, when we navigate between `/users/1` and `/users/2`,
+                // the same `UserDetails` component instance will be reused, and this hook will be called when that happens.
+                // Because the component is mounted while this happens, the navigation guard has access to `this` component instance.
+                const toRouteArgs = RouteArgs.create(registration.route, to);
+                const fromRouteArgs = RouteArgs.create(registration.route, from);
+                if (toRouteArgs.equals(fromRouteArgs)) {
+                    setDocumentMetadata();
+                    return true;
+                }
+                const vm = this.nAppVm;
+                if (vm.onLeave) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    vm.onLeave();
+                }
+                vm.__routeArgs = toRouteArgs;
+                if (vm.onEnter) {
+                    if (toRouteArgs.routeArgs.isNotEmpty)
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                        vm.onEnter(...routeArgs.routeArgs, ...registration.resolvedValues ? registration.resolvedValues : []);
+                        vm.onEnter(...toRouteArgs.routeArgs, ...registration.resolvedValues != null ? registration.resolvedValues : []);
                     else
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                         vm.onEnter();
-            });
-        };
-        component.beforeRouteUpdate = function (to, from, next) {
-            // called when the route that renders this component has changed,
-            // but this component is reused in the new route.
-            // For example, for a route with dynamic params /foo/:id, when we
-            // navigate between /foo/1 and /foo/2, the same Foo component instance
-            // will be reused, and this hook will be called when that happens.
-            // has access to `this` component instance.
-            let routeArgs = null;
-            try {
-                routeArgs = route_args_1.RouteArgs.create(registration.route, to);
-            }
-            catch (error) {
-                console.error(error);
-                next(false);
-                return;
-            }
-            let fromRouteArgs = null;
-            try {
-                fromRouteArgs = route_args_1.RouteArgs.create(registration.route, from);
-            }
-            catch (error) {
-                console.error(error);
-                fromRouteArgs = new route_args_1.RouteArgs({}, {}, []);
-            }
-            if (routeArgs.equals(fromRouteArgs)) {
+                }
                 setDocumentMetadata();
-                next();
-                return;
-            }
-            const vm = this.vm;
-            if (vm.onLeave) {
-                try {
+                return true;
+            },
+            beforeRouteLeave: function (_, __) {
+                const vm = this.nAppVm;
+                if (vm.onLeave)
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     vm.onLeave();
-                }
-                catch (error) {
-                    next(false);
-                    return;
-                }
+                return true;
             }
-            vm.__routeArgs = routeArgs;
-            // console.log("invoked on update", routeArgs);
-            if (module.hot)
-                page_hmr_helper_1.PageHmrHelper.track(registration, routeArgs);
-            if (vm.onEnter)
-                if (routeArgs.routeArgs.length > 0)
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    vm.onEnter(...routeArgs.routeArgs, ...registration.resolvedValues ? registration.resolvedValues : []);
-                else
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    vm.onEnter();
-            setDocumentMetadata();
-            next();
         };
-        component.beforeRouteLeave = function (_to, _from, next) {
-            // called when the route that renders this component is about to
-            // be navigated away from.
-            // has access to `this` component instance.
-            const vm = this.vm;
-            if (vm.onLeave) {
-                try {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    vm.onLeave();
-                }
-                catch (error) {
-                    next(false);
-                    return;
-                }
-            }
-            next();
-        };
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        if (typeof registration.template === "string")
+            component.template = registration.template;
+        else
+            component.render = registration.template;
+        if (registration.localComponentRegistrations.isNotEmpty) {
+            const componentFactory = new ComponentFactory();
+            const components = registration.localComponentRegistrations
+                .reduce((acc, t) => {
+                acc[t.element] = componentFactory.create(t);
+                return acc;
+            }, {});
+            component.components = components;
+        }
         return component;
     }
 }
-exports.PageComponentFactory = PageComponentFactory;
 //# sourceMappingURL=page-component-factory.js.map

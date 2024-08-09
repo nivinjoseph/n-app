@@ -1,6 +1,6 @@
-import { ComponentViewModel } from "../../core/component-view-model";
-import { DialogService } from "../../services/dialog-service/dialog-service";
-import { EventAggregator } from "../../services/event-aggregator/event-aggregator";
+import { ComponentViewModel } from "../../core/component-view-model.js";
+import type { DialogService } from "../../services/dialog-service/dialog-service.js";
+import type { EventAggregator } from "../../services/event-aggregator/event-aggregator.js";
 export interface FileInfo {
     fileName: string;
     fileType: string;
@@ -29,3 +29,4 @@ export declare class NFileSelectViewModel extends ComponentViewModel {
     private _ensureFileTypeIsAllowed;
     private _initializeMaxFileSizeBytes;
 }
+//# sourceMappingURL=n-file-select-view-model.d.ts.map

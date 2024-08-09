@@ -1,13 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PropertyInfo = void 0;
-class PropertyInfo {
+export class PropertyInfo {
+    _name;
+    _descriptor;
+    get name() { return this._name; }
+    get descriptor() { return this._descriptor; }
     constructor(name, descriptor) {
         this._name = name;
         this._descriptor = descriptor;
     }
-    get name() { return this._name; }
-    get descriptor() { return this._descriptor; }
 }
-exports.PropertyInfo = PropertyInfo;
 //# sourceMappingURL=property-info.js.map

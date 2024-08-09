@@ -1,0 +1,1 @@
+{"version":3,"file":"page-component-factory.d.ts","sourceRoot":"","sources":["../../src/core/page-component-factory.ts"],"names":[],"mappings":"AAGA,OAAO,EAAwB,KAAK,gBAAgB,EAA4B,MAAM,KAAK,CAAC;AAC5F,OAAO,EAAE,gBAAgB,EAAE,MAAM,wBAAwB,CAAC;AAO1D,qBAAa,oBAAoB;IAEtB,MAAM,CAAC,YAAY,EAAE,gBAAgB,GAAG,gBAAgB;CAiRlE"}

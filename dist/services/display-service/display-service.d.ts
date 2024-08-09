@@ -1,5 +1,5 @@
-import { Observable } from "@nivinjoseph/n-util";
-import { DisplayType } from "./display-type";
+import type { Observable } from "@nivinjoseph/n-util";
+import { DisplayType } from "./display-type.js";
 export interface DisplayService {
     /**
    * @description The type of display used; 1 - Desktop, 2 - Tablet, 3 - Phone.
@@ -18,3 +18,4 @@ export interface DisplayService {
     */
     get windowResizeObservable(): Observable<void>;
 }
+//# sourceMappingURL=display-service.d.ts.map

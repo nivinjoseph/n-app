@@ -1,13 +1,13 @@
-import { template } from "../../core/template";
-import { element } from "../../core/element";
-import { bind } from "../../core/bind";
-import { ComponentViewModel } from "../../core/component-view-model";
+import { template } from "../../core/template.js";
+import { element } from "../../core/element.js";
+import { bind } from "../../core/bind.js";
+import { ComponentViewModel } from "../../core/component-view-model.js";
 import { inject } from "@nivinjoseph/n-ject";
-import { DialogService } from "../../services/dialog-service/dialog-service";
-import { EventAggregator } from "../../services/event-aggregator/event-aggregator";
+import type { DialogService } from "../../services/dialog-service/dialog-service.js";
+import type { EventAggregator } from "../../services/event-aggregator/event-aggregator.js";
 import { given } from "@nivinjoseph/n-defensive";
 // import * as $ from "jquery";
-import { events } from "../../core/events";
+import { events } from "../../core/events.js";
 import { Deferred, TypeHelper } from "@nivinjoseph/n-util";
 
 // public
@@ -21,7 +21,6 @@ export interface FileInfo
     fileDataUrl: string;
     nativeFile: File;
 }
-
 
 @template(require("./n-file-select-view.html"))
 @element("n-file-select")
@@ -101,6 +100,7 @@ export class NFileSelectViewModel extends ComponentViewModel
         const fchange = function (this: any): void
         {
             that._processFiles(this.files);
+
             $(this).off("change");
             $(this).remove();
             that._inputElement = $(inputText);
@@ -121,8 +121,8 @@ export class NFileSelectViewModel extends ComponentViewModel
 
         const promises = new Array<Promise<FileInfo>>();
 
-        for (const file of files)
-            promises.push(this._createFileInfo(file));
+        for (let i = 0; i < files.length; i++)
+            promises.push(this._createFileInfo(files.item(i)!));
 
         Promise.all(promises)
             .then((results) =>

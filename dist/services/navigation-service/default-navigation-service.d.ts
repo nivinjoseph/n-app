@@ -1,12 +1,12 @@
-import { NavigationService } from "./navigation-service";
+import type { NavigationService } from "./navigation-service.js";
 import "@nivinjoseph/n-ext";
-import VueRouter from "vue-router";
+import type { Router } from "vue-router";
 export declare class DefaultNavigationService implements NavigationService {
     private readonly _vueRouter;
     get currentRoutePath(): string;
     get currentRouteFullPath(): string;
     get currentRouteHash(): string | null;
-    constructor(vueRouter: VueRouter);
+    constructor(vueRouter: Router);
     navigate(route: string, params?: object | null, replaceHistory?: boolean): void;
     navigateBack(): void;
     navigateForward(): void;
@@ -18,3 +18,4 @@ export declare class DefaultNavigationService implements NavigationService {
     private _createForm;
     private _getHash;
 }
+//# sourceMappingURL=default-navigation-service.d.ts.map

@@ -27,3 +27,4 @@ export interface EventSubscription {
      */
     unsubscribe(): void;
 }
+//# sourceMappingURL=event-aggregator.d.ts.map

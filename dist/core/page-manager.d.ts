@@ -1,10 +1,8 @@
 import { Container } from "@nivinjoseph/n-ject";
-import { ComponentManager } from "./component-manager";
-import VueRouter from "vue-router";
+import { type Router } from "vue-router";
+import type { PageViewModelClass } from "./page-view-model.js";
 export declare class PageManager {
-    private readonly _vueRouter;
     private readonly _container;
-    private readonly _componentManager;
     private readonly _pageViewModelClasses;
     private readonly _registrations;
     private readonly _resolvers;
@@ -14,9 +12,9 @@ export declare class PageManager {
     private _useHistoryMode;
     get hasRegistrations(): boolean;
     get useHistoryMode(): boolean;
-    get vueRouterInstance(): VueRouter;
-    constructor(vueRouter: unknown, container: Container, componentManager: ComponentManager);
-    registerPages(...pageViewModelClasses: Array<Function>): void;
+    get vueRouterInstance(): Router;
+    constructor(container: Container);
+    registerPages(...pageViewModelClasses: Array<PageViewModelClass<any>>): void;
     useAsInitialRoute(route: string): void;
     useAsUnknownRoute(route: string): void;
     useHistoryModeRouting(): void;
@@ -25,4 +23,6 @@ export declare class PageManager {
     private _createRouting;
     private _createPageTree;
     private _configureResolves;
+    private _registerLocalComponentViewModel;
 }
+//# sourceMappingURL=page-manager.d.ts.map

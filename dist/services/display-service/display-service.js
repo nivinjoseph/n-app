@@ -1,3 +1,2 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+import { DisplayType } from "./display-type.js";
 //# sourceMappingURL=display-service.js.map

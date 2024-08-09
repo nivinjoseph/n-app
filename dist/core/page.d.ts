@@ -1,4 +1,5 @@
-import { PageRegistration } from "./page-registration";
+import { PageRegistration } from "./page-registration.js";
+import type { RouteRecordRaw } from "vue-router";
 export declare class Page {
     private readonly _segment;
     private _parent;
@@ -13,6 +14,7 @@ export declare class Page {
     addChild(childPage: Page): void;
     removeChild(childPage: Page): void;
     changeParent(parent: Page | null): void;
-    createVueRouterRoute(): object;
+    createVueRouterRoute(): RouteRecordRaw;
     private _createRoute;
 }
+//# sourceMappingURL=page.d.ts.map

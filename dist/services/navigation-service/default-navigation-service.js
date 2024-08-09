@@ -1,12 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DefaultNavigationService = void 0;
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-require("@nivinjoseph/n-ext");
-const utils_1 = require("../../core/utils");
-class DefaultNavigationService {
+import { given } from "@nivinjoseph/n-defensive";
+import "@nivinjoseph/n-ext";
+import { Utils } from "../../core/utils.js";
+export class DefaultNavigationService {
+    _vueRouter;
+    get currentRoutePath() { return this._vueRouter.currentRoute.value.path; }
+    get currentRouteFullPath() { return this._vueRouter.currentRoute.value.fullPath; }
+    get currentRouteHash() { return this._getHash(); }
     constructor(vueRouter) {
-        (0, n_defensive_1.given)(vueRouter, "vueRouter").ensureHasValue().ensureIsObject();
+        given(vueRouter, "vueRouter").ensureHasValue().ensureIsObject();
         this._vueRouter = vueRouter;
         // // the code below is a hack to deal with following error
         // // Error: Navigation cancelled from "/runtime/dashboard" to "/runtime/appType/apd_cafdb74cf103485db2a6a2bcfd65ee8d" with a new navigation.
@@ -34,11 +35,8 @@ class DefaultNavigationService {
         //     });
         // };
     }
-    get currentRoutePath() { return this._vueRouter.currentRoute.path; }
-    get currentRouteFullPath() { return this._vueRouter.currentRoute.fullPath; }
-    get currentRouteHash() { return this._getHash(); }
     navigate(route, params, replaceHistory) {
-        const url = utils_1.Utils.generateUrl(route, params !== null && params !== void 0 ? params : undefined);
+        const url = Utils.generateUrl(route, params ?? undefined);
         if (replaceHistory)
             this._vueRouter.replace(url).catch(e => console.error(e));
         else
@@ -51,7 +49,7 @@ class DefaultNavigationService {
         this._vueRouter.forward();
     }
     navigateSiteSameTab(url, replaceHistory) {
-        (0, n_defensive_1.given)(url, "url").ensureHasValue().ensureIsString();
+        given(url, "url").ensureHasValue().ensureIsString();
         url = url.trim();
         if (replaceHistory)
             window.location.replace(url);
@@ -59,18 +57,18 @@ class DefaultNavigationService {
             window.location.href = url;
     }
     navigateSiteNewTab(url) {
-        (0, n_defensive_1.given)(url, "url").ensureHasValue().ensureIsString();
+        given(url, "url").ensureHasValue().ensureIsString();
         url = url.trim();
         window.open(url);
     }
     navigateSitePostSameTab(url, value) {
-        (0, n_defensive_1.given)(url, "url").ensureHasValue().ensureIsString();
+        given(url, "url").ensureHasValue().ensureIsString();
         url = url.trim();
         const form = this._createForm(url, value);
         form.submit();
     }
     navigateSitePostNewTab(url, value) {
-        (0, n_defensive_1.given)(url, "url").ensureHasValue().ensureIsString();
+        given(url, "url").ensureHasValue().ensureIsString();
         url = url.trim();
         const form = this._createForm(url, value);
         const view = "view" + "_" + Math.floor((Math.random() * 9999999) + 1);
@@ -79,7 +77,7 @@ class DefaultNavigationService {
         form.submit();
     }
     getSiteQueryParam(key) {
-        (0, n_defensive_1.given)(key, "key").ensureHasValue().ensureIsString();
+        given(key, "key").ensureHasValue().ensureIsString();
         // eslint-disable-next-line no-useless-escape
         key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
         const regex = new RegExp("[\\?&]" + key + "=([^&#]*)");
@@ -106,7 +104,7 @@ class DefaultNavigationService {
         return form;
     }
     _getHash() {
-        let hash = this._vueRouter.currentRoute.hash;
+        let hash = this._vueRouter.currentRoute.value.hash;
         if (!hash || hash.isEmptyOrWhiteSpace())
             return null;
         hash = hash.trim();
@@ -115,5 +113,4 @@ class DefaultNavigationService {
         return hash.isEmptyOrWhiteSpace() ? null : hash;
     }
 }
-exports.DefaultNavigationService = DefaultNavigationService;
 //# sourceMappingURL=default-navigation-service.js.map

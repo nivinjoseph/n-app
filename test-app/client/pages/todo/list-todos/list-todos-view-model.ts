@@ -1,7 +1,7 @@
-import { route, template, resolve } from "./../../../../../src/index";
-import * as Routes from "./../../routes";
-import { BasePageViewModel } from "../../base-page-view-model";
-import { TestResolverFoo } from "../../../resolvers/test-resolver-foo";
+import { route, template, resolve } from "./../../../../../src/index.js";
+import * as Routes from "./../../routes.js";
+import { BasePageViewModel } from "../../base-page-view-model.js";
+import { TestResolverFoo } from "../../../resolvers/test-resolver-foo.js";
 
 
 @template(require("./list-todos-view.html"))

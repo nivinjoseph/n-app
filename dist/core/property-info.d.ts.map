@@ -1,0 +1,1 @@
+{"version":3,"file":"property-info.d.ts","sourceRoot":"","sources":["../../src/core/property-info.ts"],"names":[],"mappings":"AAAA,qBAAa,YAAY;IAErB,OAAO,CAAC,QAAQ,CAAC,KAAK,CAAS;IAC/B,OAAO,CAAC,QAAQ,CAAC,WAAW,CAAqB;IAGjD,IAAW,IAAI,IAAI,MAAM,CAAuB;IAChD,IAAW,UAAU,IAAI,kBAAkB,CAA6B;gBAGrD,IAAI,EAAE,MAAM,EAAE,UAAU,EAAE,kBAAkB;CAKlE"}

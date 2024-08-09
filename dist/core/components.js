@@ -1,13 +1,15 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.components = exports.componentsSymbol = void 0;
-require("reflect-metadata");
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-exports.componentsSymbol = Symbol.for("@nivinjoseph/n-app/components");
+import { given } from "@nivinjoseph/n-defensive";
+export const componentsSymbol = Symbol.for("@nivinjoseph/n-app/components");
 // public
-function components(...components) {
-    (0, n_defensive_1.given)(components, "components").ensureHasValue().ensureIsArray().ensure(t => t.isNotEmpty, "cannot be empty");
-    return (target) => Reflect.defineMetadata(exports.componentsSymbol, components, target);
+export function components(...components) {
+    const decorator = (_, context) => {
+        given(context, "context")
+            // @ts-expect-error chill
+            .ensure(t => t.kind === "class", "components decorator should only be used on a class");
+        const className = context.name;
+        given(className, className).ensureHasValue().ensureIsString();
+        context.metadata[componentsSymbol] = components;
+    };
+    return decorator;
 }
-exports.components = components;
 //# sourceMappingURL=components.js.map

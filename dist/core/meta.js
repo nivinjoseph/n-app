@@ -1,15 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.meta = exports.metaSymbol = void 0;
-require("reflect-metadata");
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-require("@nivinjoseph/n-ext");
-exports.metaSymbol = Symbol.for("@nivinjoseph/n-app/meta");
+import { given } from "@nivinjoseph/n-defensive";
+import "@nivinjoseph/n-ext";
+export const metaSymbol = Symbol.for("@nivinjoseph/n-app/meta");
 // public
-function meta(...metas) {
-    (0, n_defensive_1.given)(metas, "metas").ensureHasValue().ensureIsArray()
+export function meta(...metas) {
+    given(metas, "metas").ensureHasValue().ensureIsArray()
         .ensure(t => t.isNotEmpty);
-    return (target) => Reflect.defineMetadata(exports.metaSymbol, metas, target);
+    const decorator = (_, context) => {
+        given(context, "context")
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            .ensure(t => t.kind === "class", "meta decorator should only be used on a class");
+        const className = context.name;
+        given(className, className).ensureHasValue().ensureIsString();
+        context.metadata[metaSymbol] = metas;
+    };
+    return decorator;
 }
-exports.meta = meta;
 //# sourceMappingURL=meta.js.map

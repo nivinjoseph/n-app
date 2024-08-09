@@ -1,5 +1,5 @@
-import { Page } from "./page";
-import { PageRegistration } from "./page-registration";
+import { Page } from "./page.js";
+import { PageRegistration } from "./page-registration.js";
 export declare class PageTreeBuilder {
     private readonly _root;
     private readonly _registrations;
@@ -8,3 +8,4 @@ export declare class PageTreeBuilder {
     private _buildTree;
     private _shakeTree;
 }
+//# sourceMappingURL=page-tree-builder.d.ts.map

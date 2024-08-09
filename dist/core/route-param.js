@@ -1,14 +1,22 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.RouteParam = void 0;
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-require("@nivinjoseph/n-ext");
-const n_exception_1 = require("@nivinjoseph/n-exception");
-const http_exception_1 = require("./http-exception");
-class RouteParam {
+import { given } from "@nivinjoseph/n-defensive";
+import "@nivinjoseph/n-ext";
+import { InvalidArgumentException, ApplicationException, InvalidOperationException } from "@nivinjoseph/n-exception";
+import { HttpException } from "./http-exception.js";
+export class RouteParam {
+    _param;
+    _paramKey;
+    _paramType;
+    _isQuery;
+    _isOptional;
+    _order = 0;
+    get param() { return this._param; }
+    get paramKey() { return this._paramKey; }
+    get paramType() { return this._paramType; }
+    get isQuery() { return this._isQuery; }
+    get isOptional() { return this._isOptional; }
+    get order() { return this._order; }
     constructor(routeParam) {
-        this._order = 0;
-        (0, n_defensive_1.given)(routeParam, "routeParam").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(routeParam, "routeParam").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         let param = routeParam.trim();
         let paramKey;
         let paramType;
@@ -21,7 +29,7 @@ class RouteParam {
         if (param.contains(":")) {
             const splitted = param.split(":");
             if (splitted.length > 2 || splitted[0].isEmptyOrWhiteSpace() || splitted[1].isEmptyOrWhiteSpace())
-                throw new n_exception_1.InvalidArgumentException("routeParam");
+                throw new InvalidArgumentException("routeParam");
             paramKey = splitted[0].trim();
             paramType = splitted[1].trim().toLowerCase();
             if (paramType !== ParamTypes.boolean && paramType !== ParamTypes.number && paramType !== ParamTypes.string)
@@ -33,7 +41,8 @@ class RouteParam {
         }
         if (paramKey.endsWith("?")) {
             if (!isQuery)
-                throw new n_exception_1.ApplicationException("Path parameters cannot be optional.");
+                throw new ApplicationException("Path parameters cannot be optional.");
+            // TODO: we can tell vue router that this param is optional don't need to remove '?'
             paramKey = paramKey.substr(0, paramKey.length - 1);
             isOptional = true;
         }
@@ -43,23 +52,17 @@ class RouteParam {
         this._isQuery = isQuery;
         this._isOptional = isOptional;
     }
-    get param() { return this._param; }
-    get paramKey() { return this._paramKey; }
-    get paramType() { return this._paramType; }
-    get isQuery() { return this._isQuery; }
-    get isOptional() { return this._isOptional; }
-    get order() { return this._order; }
     setOrder(order) {
-        (0, n_defensive_1.given)(order, "order").ensureHasValue();
+        given(order, "order").ensureHasValue();
         if (this._order > 0)
-            throw new n_exception_1.InvalidOperationException("setOrder");
+            throw new InvalidOperationException("setOrder");
         this._order = order;
     }
     parseParam(value) {
         if (value == null || value.isEmptyOrWhiteSpace() || value.trim().toLowerCase() === "null") {
             if (this._isOptional)
                 return null;
-            throw new http_exception_1.HttpException(404);
+            throw new HttpException(404);
         }
         value = value.trim();
         if (this._paramType === ParamTypes.string || this._paramType === ParamTypes.any)
@@ -82,7 +85,7 @@ class RouteParam {
             throw "PARSE ERROR";
         }
         catch (error) {
-            throw new http_exception_1.HttpException(404);
+            throw new HttpException(404);
         }
     }
     _parseBoolean(value) {
@@ -91,18 +94,17 @@ class RouteParam {
             return true;
         if (value === "false")
             return false;
-        throw new http_exception_1.HttpException(404);
+        throw new HttpException(404);
     }
 }
-exports.RouteParam = RouteParam;
 class ParamTypes {
+    static _boolean = "boolean";
+    static _number = "number";
+    static _string = "string";
+    static _any = "any";
     static get boolean() { return this._boolean; }
     static get number() { return this._number; }
     static get string() { return this._string; }
     static get any() { return this._any; }
 }
-ParamTypes._boolean = "boolean";
-ParamTypes._number = "number";
-ParamTypes._string = "string";
-ParamTypes._any = "any";
 //# sourceMappingURL=route-param.js.map

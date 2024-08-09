@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DialogLocation = void 0;
-var DialogLocation;
+export var DialogLocation;
 (function (DialogLocation) {
     DialogLocation["topLeft"] = "toast-top-left";
     DialogLocation["topRight"] = "toast-top-right";
@@ -11,5 +8,5 @@ var DialogLocation;
     DialogLocation["bottomRight"] = "toast-bottom-right";
     DialogLocation["bottomCenter"] = "toast-bottom-center";
     DialogLocation["bottomFullWidth"] = "toast-bottom-full-width";
-})(DialogLocation = exports.DialogLocation || (exports.DialogLocation = {}));
+})(DialogLocation || (DialogLocation = {}));
 //# sourceMappingURL=dialog-service.js.map

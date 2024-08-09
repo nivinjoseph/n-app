@@ -1,4 +1,4 @@
-import { StorageService } from "./storage-service";
+import type { StorageService } from "./storage-service.js";
 export declare class DefaultStorageService implements StorageService {
     persist(key: string, value: unknown): void;
     persistInSession(key: string, value: unknown): void;
@@ -7,3 +7,4 @@ export declare class DefaultStorageService implements StorageService {
     remove(key: string): void;
     removeFromSession(key: string): void;
 }
+//# sourceMappingURL=default-storage-service.d.ts.map

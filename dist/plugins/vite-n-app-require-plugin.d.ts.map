@@ -1,0 +1,1 @@
+{"version":3,"file":"vite-n-app-require-plugin.d.ts","sourceRoot":"","sources":["../../src/plugins/vite-n-app-require-plugin.ts"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,MAAM,EAAmB,MAAM,MAAM,CAAC;AAOpD,wBAAgB,qBAAqB,CAAC,IAAI,CAAC,EAAE;IACzC,SAAS,CAAC,EAAE,MAAM,CAAC;IAInB,aAAa,CAAC,EAAE,eAAe,GAAG,QAAQ,CAAC;CAC9C,GAAG,MAAM,CA+OT"}

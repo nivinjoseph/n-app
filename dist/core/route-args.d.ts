@@ -1,4 +1,4 @@
-import { RouteInfo } from "./route-info";
+import { RouteInfo } from "./route-info.js";
 import "@nivinjoseph/n-ext";
 export declare class RouteArgs {
     private readonly _pathArgs;
@@ -12,3 +12,4 @@ export declare class RouteArgs {
     equals(comparison: RouteArgs): boolean;
     private _createParamsArray;
 }
+//# sourceMappingURL=route-args.d.ts.map

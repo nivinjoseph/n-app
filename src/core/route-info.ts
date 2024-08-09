@@ -1,7 +1,7 @@
 import { given } from "@nivinjoseph/n-defensive";
 import "@nivinjoseph/n-ext";
 import { ApplicationException, ArgumentException } from "@nivinjoseph/n-exception";
-import { RouteParam } from "./route-param";
+import { RouteParam } from "./route-param.js";
 
 // route template format: /api/Product/{id:number}?{name?:string}&{all:boolean}
 
@@ -36,9 +36,9 @@ export class RouteInfo
         given(routeTemplate, "routeTemplate")
             .ensureHasValue()
             .ensure(t => !t.isEmptyOrWhiteSpace());
-        
+
         routeTemplate = routeTemplate.trim().replaceAll(" ", "");
-        
+
         if (!isUrlGenerator)
         {
             given(routeTemplate, "routeTemplate")
@@ -48,10 +48,10 @@ export class RouteInfo
             if (routeTemplate.length > 1 && routeTemplate.endsWith("/"))
                 routeTemplate = routeTemplate.substr(0, routeTemplate.length - 1);
         }
-        
+
         this._routeTemplate = routeTemplate;
         this._populateRouteParams();
-        
+
         if (!isUrlGenerator)
         {
             this._vueRoute = this._generateVueRoute(this._routeTemplate);
@@ -70,7 +70,7 @@ export class RouteInfo
     public generateUrl(values: object): string
     {
         given(values, "values").ensureHasValue().ensureIsObject();
-        
+
         let url = this._routeTemplate;
         let hasQuery = this._hasQuery;
 
@@ -78,7 +78,7 @@ export class RouteInfo
         {
             const routeParam = this.findRouteParam(key);
             const val = values.getValue(key);
-            
+
             if (routeParam)
             {
                 const param = "{" + routeParam.param + "}";
@@ -87,14 +87,14 @@ export class RouteInfo
                     : encodeURIComponent(val);
                 if (val == null && routeParam.isQuery && routeParam.isOptional) // only query params can be optional anyway
                     replacement = "";
-                
+
                 url = url.replace(param, replacement);
             }
             else
             {
                 if (val == null)
                     continue;
-                
+
                 url = `${url}${hasQuery ? "&" : "?"}${"{0}={1}".format(key, encodeURIComponent(val))}`;
                 hasQuery = true;
             }
@@ -103,7 +103,7 @@ export class RouteInfo
         url = url.trim();
         while (url.endsWith("?") || url.endsWith("&"))
             url = url.substr(0, url.length - 1).trim();
-        
+
         return url;
     }
 
@@ -159,7 +159,7 @@ export class RouteInfo
                 startFound = false;
             }
         }
-        
+
         this._hasQuery = queryFound;
 
         return templateParams;
@@ -173,7 +173,7 @@ export class RouteInfo
             if (!routeTemplate.contains(asItWas))
                 throw new ApplicationException("Invalid route template.");
 
-            routeTemplate = routeTemplate.replace(asItWas, ":{0}".format(routeParam.paramKey));
+            routeTemplate = routeTemplate.replace(asItWas, `:${routeParam.paramKey}`);
         }
 
         if (routeTemplate.contains("?"))
@@ -187,28 +187,28 @@ export class RouteInfo
 
         return routeTemplate;
     }
-    
+
     private _populatePathSegments(): void
     {
         const routeTemplate = this._vueRoute!;
         const pathSegments = new Array<string>();
-        
+
         pathSegments.push("/");
-        
+
         for (const item of routeTemplate.split("/"))
         {
             if (item.isEmptyOrWhiteSpace() || item.startsWith(":"))
                 continue;
-            
+
             if (pathSegments.some(t => t === item))
-                throw new ArgumentException("routeTemplate", "cannot contain duplicate segments");    
-            
+                throw new ArgumentException("routeTemplate", "cannot contain duplicate segments");
+
             pathSegments.push(item);
-        } 
-        
+        }
+
         this._pathSegments.push(...pathSegments);
     }
-    
+
     private _generateRouteKey(): string
     {
         return this._pathSegments.join("/").replace("//", "/");

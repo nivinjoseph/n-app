@@ -1,5 +1,5 @@
-import { Observable } from "@nivinjoseph/n-util";
-import { DisplayType } from "./display-type";
+import type { Observable } from "@nivinjoseph/n-util";
+import { DisplayType } from "./display-type.js";
 
 
 export interface DisplayService

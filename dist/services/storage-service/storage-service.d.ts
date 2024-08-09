@@ -6,3 +6,4 @@ export interface StorageService {
     remove(key: string): void;
     removeFromSession(key: string): void;
 }
+//# sourceMappingURL=storage-service.d.ts.map

@@ -1,14 +1,14 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.persist = exports.persistSymbol = void 0;
-require("reflect-metadata");
-require("@nivinjoseph/n-ext");
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-exports.persistSymbol = Symbol.for("@nivinjoseph/n-app/persist");
+import "@nivinjoseph/n-ext";
+import { given } from "@nivinjoseph/n-defensive";
+import { ComponentViewModel } from "./component-view-model.js";
+export const persistSymbol = Symbol.for("@nivinjoseph/n-app/persist");
 // public
-function persist(target) {
-    (0, n_defensive_1.given)(target, "target").ensureHasValue().ensureIsFunction();
-    Reflect.defineMetadata(exports.persistSymbol, true, target);
+export function persist(_, context) {
+    given(context, "context")
+        // @ts-expect-error chill
+        .ensure(t => t.kind === "class", "persist decorator should only be used on a class");
+    const className = context.name;
+    given(className, className).ensureHasValue().ensureIsString();
+    context.metadata[persistSymbol] = true;
 }
-exports.persist = persist;
 //# sourceMappingURL=persist.js.map

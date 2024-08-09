@@ -5,3 +5,4 @@ export declare class PropertyInfo {
     get descriptor(): PropertyDescriptor;
     constructor(name: string, descriptor: PropertyDescriptor);
 }
+//# sourceMappingURL=property-info.d.ts.map

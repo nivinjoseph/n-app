@@ -1,4 +1,4 @@
-import { ComponentViewModel } from "../../core/component-view-model";
+import { ComponentViewModel } from "../../core/component-view-model.js";
 import "./n-expanding-container-view.scss";
 export declare class NExpandingContainerViewModel extends ComponentViewModel {
     get _constrainHorizontal(): boolean;
@@ -9,3 +9,4 @@ export declare class NExpandingContainerViewModel extends ComponentViewModel {
     private _doHorizontal;
     private _doVertical;
 }
+//# sourceMappingURL=n-expanding-container-view-model.d.ts.map

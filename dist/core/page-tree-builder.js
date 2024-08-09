@@ -1,12 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PageTreeBuilder = void 0;
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-const page_1 = require("./page");
-class PageTreeBuilder {
+import { given } from "@nivinjoseph/n-defensive";
+import { Page } from "./page.js";
+import { PageRegistration } from "./page-registration.js";
+export class PageTreeBuilder {
+    _root;
+    _registrations;
     constructor(root, pageRegistrations) {
-        (0, n_defensive_1.given)(root, "root").ensureHasValue().ensureIsType(page_1.Page);
-        (0, n_defensive_1.given)(pageRegistrations, "pageRegistrations").ensureHasValue().ensureIsArray().ensure(t => t.isNotEmpty);
+        given(root, "root").ensureHasValue().ensureIsType(Page);
+        given(pageRegistrations, "pageRegistrations").ensureHasValue().ensureIsArray().ensure(t => t.isNotEmpty);
         this._root = root;
         this._registrations = pageRegistrations;
     }
@@ -22,7 +22,7 @@ class PageTreeBuilder {
                     continue;
                 let node = currentNode.children.find(t => t.segment === segment);
                 if (!node)
-                    node = new page_1.Page(segment, currentNode);
+                    node = new Page(segment, currentNode);
                 currentNode = node;
             }
             currentNode.attachRegistration(registration);
@@ -49,5 +49,4 @@ class PageTreeBuilder {
         return children;
     }
 }
-exports.PageTreeBuilder = PageTreeBuilder;
 //# sourceMappingURL=page-tree-builder.js.map

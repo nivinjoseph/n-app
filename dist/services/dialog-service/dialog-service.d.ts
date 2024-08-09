@@ -57,3 +57,4 @@ export declare enum DialogLocation {
     bottomCenter = "toast-bottom-center",
     bottomFullWidth = "toast-bottom-full-width"
 }
+//# sourceMappingURL=dialog-service.d.ts.map

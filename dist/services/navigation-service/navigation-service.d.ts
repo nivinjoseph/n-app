@@ -78,3 +78,4 @@ export interface NavigationService {
      */
     getSiteQueryParam(key: string): string;
 }
+//# sourceMappingURL=navigation-service.d.ts.map

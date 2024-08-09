@@ -1,0 +1,1 @@
+{"version":3,"file":"component-factory.d.ts","sourceRoot":"","sources":["../../src/core/component-factory.ts"],"names":[],"mappings":"AAEA,OAAO,oBAAoB,CAAC;AAG5B,OAAO,EAAE,qBAAqB,EAAE,MAAM,6BAA6B,CAAC;AAKpE,qBAAa,gBAAgB;IAElB,MAAM,CAAC,YAAY,EAAE,qBAAqB,GAAG,MAAM;IA0J1D,OAAO,CAAC,4BAA4B;CA0FvC"}

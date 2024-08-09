@@ -1,18 +1,22 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.template = exports.templateSymbol = void 0;
-require("reflect-metadata");
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-require("@nivinjoseph/n-ext");
-exports.templateSymbol = Symbol.for("@nivinjoseph/n-app/template");
+import { given } from "@nivinjoseph/n-defensive";
+import "@nivinjoseph/n-ext";
+import { ComponentViewModel } from "./component-view-model.js";
+export const templateSymbol = Symbol.for("@nivinjoseph/n-app/template");
 // public
-function template(template) {
-    (0, n_defensive_1.given)(template, "template").ensureHasValue();
+export function template(template) {
+    given(template, "template").ensureHasValue();
     if (typeof template === "string")
-        (0, n_defensive_1.given)(template, "template").ensureIsString();
+        given(template, "template").ensureIsString();
     else
-        (0, n_defensive_1.given)(template, "template").ensureIsObject();
-    return (target) => Reflect.defineMetadata(exports.templateSymbol, template, target);
+        given(template, "template").ensureIsFunction();
+    const decorator = (_, context) => {
+        given(context, "context")
+            // @ts-expect-error chill
+            .ensure(t => t.kind === "class", "template decorator should only be used on a class");
+        const className = context.name;
+        given(className, className).ensureHasValue().ensureIsString();
+        context.metadata[templateSymbol] = template;
+    };
+    return decorator;
 }
-exports.template = template;
 //# sourceMappingURL=template.js.map

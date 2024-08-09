@@ -1,51 +1,39 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ComponentViewModel = void 0;
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-const n_exception_1 = require("@nivinjoseph/n-exception");
-const base_view_model_1 = require("./base-view-model");
-const component_registration_1 = require("./component-registration");
-const component_factory_1 = require("./component-factory");
+import { given } from "@nivinjoseph/n-defensive";
+import { InvalidOperationException } from "@nivinjoseph/n-exception";
+import { BaseViewModel } from "./base-view-model.js";
 // public
-class ComponentViewModel extends base_view_model_1.BaseViewModel {
+export class ComponentViewModel extends BaseViewModel {
     get _myBindings() { return this["_bindings"]; }
     get _myEvents() { return this["_events"]; }
-    static createComponentOptions(component) {
-        (0, n_defensive_1.given)(component, "component").ensureHasValue().ensureIsFunction();
-        const registration = new component_registration_1.ComponentRegistration(component);
-        const factory = new component_factory_1.ComponentFactory();
-        return factory.create(registration);
-    }
+    get _myProps() { return this.ctx.$props; }
     getBound(propertyName) {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (!this.ctx)
-            throw new n_exception_1.InvalidOperationException("calling getBound() in the constructor");
-        (0, n_defensive_1.given)(propertyName, "propertyName").ensureHasValue()
+            throw new InvalidOperationException("calling getBound() in the constructor");
+        given(propertyName, "propertyName").ensureHasValue()
             .ensure(t => this._myBindings.contains(t), `No binding with the name '${propertyName}' found`);
-        return this.ctx[propertyName];
+        return this._myProps[propertyName];
     }
     getBoundModel() {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (!this.ctx)
-            throw new n_exception_1.InvalidOperationException("calling getBoundModel() in the constructor");
+            throw new InvalidOperationException("calling getBoundModel() in the constructor");
         if (!this._myBindings.contains("model"))
-            throw new n_exception_1.InvalidOperationException("calling getBoundModel() without defining 'model' in bind");
-        return this.ctx["value"];
+            throw new InvalidOperationException("calling getBoundModel() without defining 'model' in bind");
+        return this._myProps["modelValue"];
     }
     setBoundModel(value) {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (!this.ctx)
-            throw new n_exception_1.InvalidOperationException("calling setBoundModel() in the constructor");
+            throw new InvalidOperationException("calling setBoundModel() in the constructor");
         if (!this._myBindings.contains("model"))
-            throw new n_exception_1.InvalidOperationException("calling setBoundModel() without defining 'model' in bind");
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        this.ctx.$emit("input", value);
+            throw new InvalidOperationException("calling setBoundModel() without defining 'model' in bind");
+        this.ctx.$emit("update:modelValue", value);
     }
     emit(event, ...eventArgs) {
-        (0, n_defensive_1.given)(event, "event").ensureHasValue().ensureIsString()
+        given(event, "event").ensureHasValue().ensureIsString()
             .ensure(t => this._myEvents.contains(t.trim()), "undeclared event");
         event = this._camelCaseToKebabCase(event);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.ctx.$emit(event, ...eventArgs);
     }
     _camelCaseToKebabCase(value) {
@@ -61,5 +49,4 @@ class ComponentViewModel extends base_view_model_1.BaseViewModel {
         return eventName;
     }
 }
-exports.ComponentViewModel = ComponentViewModel;
 //# sourceMappingURL=component-view-model.js.map

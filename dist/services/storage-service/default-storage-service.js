@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DefaultStorageService = void 0;
-const n_defensive_1 = require("@nivinjoseph/n-defensive");
-class DefaultStorageService {
+import { given } from "@nivinjoseph/n-defensive";
+export class DefaultStorageService {
     persist(key, value) {
-        (0, n_defensive_1.given)(key, "key").ensureHasValue().ensureIsString();
+        given(key, "key").ensureHasValue().ensureIsString();
         key = key.trim();
         if (value == null) {
             localStorage.setItem(key, null);
@@ -14,7 +11,7 @@ class DefaultStorageService {
         localStorage.setItem(key, JSON.stringify(storeValue));
     }
     persistInSession(key, value) {
-        (0, n_defensive_1.given)(key, "key").ensureHasValue().ensureIsString();
+        given(key, "key").ensureHasValue().ensureIsString();
         key = key.trim();
         if (value == null) {
             sessionStorage.setItem(key, null);
@@ -24,7 +21,7 @@ class DefaultStorageService {
         sessionStorage.setItem(key, JSON.stringify(storeValue));
     }
     retrieve(key) {
-        (0, n_defensive_1.given)(key, "key").ensureHasValue().ensureIsString();
+        given(key, "key").ensureHasValue().ensureIsString();
         key = key.trim();
         const value = localStorage.getItem(key);
         if (value == null)
@@ -33,7 +30,7 @@ class DefaultStorageService {
         return parsedValue.item;
     }
     retrieveFromSession(key) {
-        (0, n_defensive_1.given)(key, "key").ensureHasValue().ensureIsString();
+        given(key, "key").ensureHasValue().ensureIsString();
         key = key.trim();
         const value = sessionStorage.getItem(key);
         if (value == null)
@@ -42,15 +39,14 @@ class DefaultStorageService {
         return parsedValue.item;
     }
     remove(key) {
-        (0, n_defensive_1.given)(key, "key").ensureHasValue().ensureIsString();
+        given(key, "key").ensureHasValue().ensureIsString();
         key = key.trim();
         localStorage.removeItem(key);
     }
     removeFromSession(key) {
-        (0, n_defensive_1.given)(key, "key").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
+        given(key, "key").ensureHasValue().ensure(t => !t.isEmptyOrWhiteSpace());
         key = key.trim();
         sessionStorage.removeItem(key);
     }
 }
-exports.DefaultStorageService = DefaultStorageService;
 //# sourceMappingURL=default-storage-service.js.map
