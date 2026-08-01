@@ -1,6 +1,6 @@
 {
     "name": "@nivinjoseph/n-app",
-    "version": "5.0.3",
+    "version": "5.0.4",
     "description": "React based application framework",
     "type": "module",
     "packageManager": "yarn@4.16.0",
