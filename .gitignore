@@ -46,7 +46,10 @@ jspm_packages/
 !.env.example
 
 # Build output
-dist
+# NOTE: the root ./dist is deliberately NOT ignored — it is committed, and the
+# published tarball resolves its contents through this file (no "files" field,
+# no .npmignore). Ignoring it here would publish a package with no code.
+working-example/dist
 dist-server
 dist-test
 build/Release

@@ -28,7 +28,9 @@
         "**/.git": true,
         "**/.DS_Store": true,
         "**/.yarn/cache": true,
-        "**/dist": true,
+        // The root ./dist is committed and published — keep it visible. Only
+        // the example's build output is hidden.
+        "working-example/dist": true,
         "**/dist-server": true,
         "**/*.tsbuildinfo": true
     },

@@ -6,9 +6,6 @@
     "packageManager": "yarn@4.16.0",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
-    "files": [
-        "dist"
-    ],
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
@@ -23,8 +20,12 @@
         "working-example"
     ],
     "scripts": {
-        "build": "tsc -b",
-        "build:watch": "tsc -b --watch",
+        "ts-compile": "tsc -p .",
+        "ts-lint": "biome check .",
+        "ts-build": "yarn ts-compile && yarn ts-lint",
+        "ts-build-dist": "yarn ts-build && tsc -p ./dist",
+        "build": "yarn ts-build-dist",
+        "build:watch": "tsc -p ./dist --watch",
         "typecheck": "tsc --noEmit -p tsconfig.test.json",
         "lint": "biome check .",
         "lint:fix": "biome check --write .",
@@ -32,14 +33,12 @@
         "lint:all": "yarn workspaces foreach -A run lint",
         "test": "vitest run",
         "test:watch": "vitest",
-        "verify": "yarn build && yarn typecheck && yarn lint && yarn test",
-        "publish-package": "yarn verify && git add . && (git diff --cached --quiet || git commit -m 'preparing to publish new version') && yarn version patch && git add . && git commit -m 'new version' && git push && yarn npm publish --access public",
+        "publish-package": "yarn ts-build-dist && git add . && git commit -m 'preparing to publish new version' && yarn version patch && git add . && git commit -m 'new version' && git push && npm publish --access=public",
         "example:dev": "yarn workspace n-app-working-example dev",
         "example:build": "yarn workspace n-app-working-example build",
         "example:start": "yarn workspace n-app-working-example start",
         "example:test": "yarn workspace n-app-working-example test",
-        "example:test:e2e": "yarn workspace n-app-working-example test:e2e",
-        "prepack": "yarn build"
+        "example:test:e2e": "yarn workspace n-app-working-example test:e2e"
     },
     "repository": {
         "type": "git",

@@ -1,0 +1,1 @@
+{"version":3,"file":"page-context.d.ts","sourceRoot":"","sources":["../src/page-context.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,cAAc,EAAE,MAAM,qBAAqB,CAAC;AAG1D,MAAM,MAAM,SAAS,GAAG,cAAc,GAAG;IAAE,QAAQ,CAAC,OAAO,EAAE,MAAM,CAAA;CAAE,CAAC;AAEtE,eAAO,MAAM,WAAW,2CAAwC,CAAC;AAEjE,wBAAgB,cAAc,IAAI,SAAS,CAM1C"}
