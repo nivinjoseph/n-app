@@ -1,42 +1,47 @@
 {
-    "typescript.format.placeOpenBraceOnNewLineForFunctions": true,
-    "typescript.format.placeOpenBraceOnNewLineForControlBlocks": true,
-    "editor.formatOnType": true,
-    "editor.formatOnPaste": true,
-    "typescript.tsdk": "./node_modules/typescript/lib",
+    // NOTE: no "typescript.tsdk" here on purpose. This repo builds with
+    // TypeScript 7 (the native/Go compiler), whose package ships only `tsc` —
+    // there is no tsserver.js or lib.*.d.ts to point an SDK path at. VS Code
+    // uses its own bundled TypeScript for editor intellisense; install the
+    // "TypeScript (Native Preview)" extension if you want TS 7 in the editor.
+    // `yarn typecheck` is the authority either way.
+
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports.biome": "explicit"
+    },
+    "[typescript]": { "editor.defaultFormatter": "biomejs.biome" },
+    "[typescriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
+    "[javascript]": { "editor.defaultFormatter": "biomejs.biome" },
+    "[json]": { "editor.defaultFormatter": "biomejs.biome" },
+    "[jsonc]": { "editor.defaultFormatter": "biomejs.biome" },
+    "[css]": { "editor.defaultFormatter": "biomejs.biome" },
+
+    "editor.trimAutoWhitespace": false,
+    "editor.rulers": [80],
+    "editor.wordWrapColumn": 80,
+    "typescript.updateImportsOnFileMove.enabled": "prompt",
+    "typescript.preferences.importModuleSpecifierEnding": "js",
+
     "files.exclude": {
         "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
         "**/.DS_Store": true,
-        "**/*.js": {
-            "when": "$(basename).ts"
-        },
-        "**/*.map": {
-            "when": "$(basename).map"
-        },
-        "**/*.css": {
-            "when": "$(basename).scss"
-        }
+        "**/.yarn/cache": true,
+        "**/dist": true,
+        "**/dist-server": true,
+        "**/*.tsbuildinfo": true
     },
-    "editor.trimAutoWhitespace": false,
-    "typescript.updateImportsOnFileMove.enabled": "prompt",
-    "editor.wordWrapColumn": 120,
-    "editor.rulers": [
-        120
-    ],
-    "[scss]": {
-        "editor.defaultFormatter": "vscode.css-language-features"
-    },
-    "scss.format.braceStyle": "expand",
+
     "cSpell.userWords": [
-        "Repo",
-        "Unarchived",
-        "comms",
-        "deserialize",
+        "biomejs",
+        "mobx",
         "nivinjoseph",
-        "strval",
-        "unarchive",
-        "unarchiving"
+        "oxlint",
+        "Repo",
+        "rolldown",
+        "tsgo",
+        "unplugin",
+        "vitest"
     ]
 }

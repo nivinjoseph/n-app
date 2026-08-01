@@ -1,0 +1,5 @@
+{
+    "env": "dev",
+    "PORT": 5173,
+    "owner": "NCNX"
+}

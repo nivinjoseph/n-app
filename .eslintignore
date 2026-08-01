@@ -1,7 +1,0 @@
-node_modules
-dist
-vendor
-test-app/client/dist
-
-*.temp.ts
-test-app/client/3rd-party
