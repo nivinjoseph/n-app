@@ -67,3 +67,70 @@ the same reason.
 
 Playwright browsers need an explicit install because `.yarnrc.yml` sets
 `enableScripts: false`: `cd working-example && yarn playwright install chromium`.
+
+## Release
+
+`yarn publish-package` — the same one-liner every `@nivinjoseph/*` package uses.
+It chains:
+
+| Step | Command |
+| --- | --- |
+| 1. Gate | `yarn verify` (build → typecheck → lint → test) |
+| 2. Sweep stray work | `git add .`, commit `preparing to publish new version` |
+| 3. Bump | `yarn version patch` |
+| 4. Commit bump | `git add .`, commit `new version` |
+| 5. Push | `git push` |
+| 6. Publish | `yarn npm publish --access public` |
+
+n-app is the template for this; the other frameworks still use the older shape.
+Three differences are deliberate, and each is load-bearing:
+
+- **`files: ["dist"]` + `prepack`, with `dist/` gitignored.** The tarball is
+  `dist/` + LICENSE + README + package.json. The siblings commit `dist/` and
+  omit `files`, so they also ship `src/`, `test/`, `.vscode/`, and `.yarn/` —
+  `n-strument@2.0.2` is 1.6 MB for ~14 KB of library. This is the part to port
+  outward, not to undo here.
+- **Step 2 is guarded:** `(git diff --cached --quiet || git commit -m '...')`.
+  Committing `dist/` is what keeps the siblings' tree reliably dirty here; with
+  `dist/` ignored, a bare `git commit` exits 1 on a clean tree and kills the
+  chain before publishing. The parens are required — `&&` and `||` are
+  equal-precedence and left-associative, so without them a *failed* `verify`
+  falls through the `||` and commits anyway.
+- **`yarn npm publish`, not `npm publish`** — uses Yarn's registry auth.
+
+Step 4 needs no guard: `yarn version patch` always rewrites `package.json`. It
+does not touch `yarn.lock`, which records workspaces as `0.0.0-use.local`.
+
+Publishing happens *after* the push. If it fails on auth or network, re-run
+`yarn npm publish --access public` on its own — re-running `publish-package`
+would bump the version a second time. No git tags are created; that lineage
+ended at `v4.0.37`.
+
+Dry-run the packaging any time with `yarn npm publish --dry-run`.
+
+### Porting this to the other @nivinjoseph packages
+
+Not yet done anywhere else. Verified as still on the old shape (`dist/`
+committed, no `files`, no `prepack`, `npm publish`): `n-config`, `n-defensive`,
+`n-exception`, `n-ext`, `n-ject`, `n-log`, `n-sec`, `n-sock`, `n-strument`,
+`n-svc`, `n-util`, `n-validate`, `n-web`.
+
+Per repo:
+
+1. Add `"files": ["dist"]` and `"prepack": "yarn build"` to `package.json`.
+2. Add `dist` to `.gitignore`, then `git rm -r --cached dist` to untrack it.
+3. Delete `dist/tsconfig.json`; fold its `rootDir` / `outDir` / `declaration`
+   settings into the root `tsconfig.json` so one compile emits to `dist/`.
+   `ts-build-dist` then collapses to a single build step.
+4. `npm publish --access=public` → `yarn npm publish --access public`.
+5. Add the empty-commit guard to `publish-package` (see above).
+
+**Steps 2 and 5 must land in the same commit.** Committing `dist/` is the only
+reason those trees are reliably dirty at the first `git commit`; untracking it
+without adding the guard means the script starts dying on clean trees.
+
+Expected effect, using `n-strument@2.0.2` as the measured case: 1.6 MB packed /
+3.6 MB unpacked across 20 files → roughly 15 KB, because the old shape ships
+`.yarn/releases/yarn-<version>.cjs` (~3 MB), `.yarn/install-state.gz` (~490 KB),
+`src/`, `test/`, `.vscode/`, and the lint + tsconfig files. Confirm each with
+`yarn npm publish --dry-run` before the first real release.
