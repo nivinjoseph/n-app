@@ -4,10 +4,37 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "ts-build",
+            "label": "build",
             "type": "npm",
-            "script": "ts-build",
+            "script": "build",
+            "group": "build",
+            "problemMatcher": ["$tsc"]
+        },
+        {
+            "label": "typecheck",
+            "type": "npm",
+            "script": "typecheck",
+            "problemMatcher": ["$tsc"]
+        },
+        {
+            "label": "test",
+            "type": "npm",
+            "script": "test",
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
+            "label": "lint",
+            "type": "npm",
+            "script": "lint",
+            "problemMatcher": []
+        },
+        {
+            "label": "example:dev",
+            "type": "npm",
+            "script": "example:dev",
+            "isBackground": true,
             "problemMatcher": []
         }
-    ],
+    ]
 }

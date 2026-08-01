@@ -1,0 +1,18 @@
+@import "./common/styles.css";
+
+/* The vendored kit's own `@source "."` only covers src/common, so scan this
+   app's source too — pages/ and components/ hold most of the class usage. */
+@source ".";
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+}

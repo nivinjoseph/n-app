@@ -1,0 +1,14 @@
+{
+    "name": "@example/sdk",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./index.ts"
+    },
+    "dependencies": {
+        "@nivinjoseph/n-defensive": "2.0.3",
+        "@nivinjoseph/n-ext": "2.0.5",
+        "@nivinjoseph/n-ject": "4.0.1"
+    }
+}

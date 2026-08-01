@@ -1,0 +1,137 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true
+    },
+    "files": {
+        "ignoreUnknown": true,
+        "includes": [
+            "**",
+            "!!**/node_modules",
+            "!!**/.git",
+            "!!**/.claude",
+            "!!**/.vscode",
+            "!!**/.yarn",
+            "!!**/.playwright",
+            "!!**/.vite",
+            "!!**/.cache",
+            "!!**/dist",
+            "!!**/dist-server",
+            "!!**/dist-test",
+            "!!**/build",
+            "!!**/coverage",
+            "!!**/test-results",
+            "!!**/playwright-report"
+        ]
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true,
+            "correctness": {
+                "noUndeclaredDependencies": "error",
+                "noUnusedImports": "error",
+                "useImportExtensions": {
+                    "level": "error",
+                    "options": {
+                        "extensionMappings": {
+                            "ts": "js",
+                            "tsx": "js",
+                            "css": "css"
+                        }
+                    }
+                }
+            },
+            "nursery": {
+                "noFloatingPromises": "error",
+                "noMisusedPromises": "error",
+                "useAwaitThenable": "error",
+                "useArraySortCompare": "error",
+                "useExplicitReturnType": {
+                    "level": "error",
+                    "options": {
+                        "allowExpressions": true
+                    }
+                }
+            },
+            "style": {
+                "noNonNullAssertion": "off",
+                "useArrayLiterals": "off",
+                "useGroupedAccessorPairs": "error",
+                "useAsConstAssertion": "error",
+                "useConsistentArrayType": {
+                    "level": "error",
+                    "options": {
+                        "syntax": "generic"
+                    }
+                },
+                "useConsistentBuiltinInstantiation": "error",
+                "useConsistentMemberAccessibility": {
+                    "level": "error",
+                    "options": {
+                        "accessibility": "explicit"
+                    }
+                },
+                "useEnumInitializers": "error",
+                "useImportType": "error",
+                "useLiteralEnumMembers": "error",
+                "useNamingConvention": {
+                    "level": "error",
+                    "options": {
+                        "strictCase": false,
+                        "conventions": [
+                            {
+                                "selector": {
+                                    "kind": "classMember",
+                                    "modifiers": ["private"]
+                                },
+                                "match": "_\\$?(.+)",
+                                "formats": ["camelCase"]
+                            },
+                            {
+                                "selector": {
+                                    "kind": "enumMember"
+                                },
+                                "formats": ["camelCase"]
+                            }
+                        ]
+                    }
+                },
+                "useReadonlyClassProperties": "error",
+                "useThrowOnlyError": "error"
+            },
+            "suspicious": {
+                "useIterableCallbackReturn": "off",
+                "noConfusingVoidType": "error",
+                "noTsIgnore": "error"
+            }
+        }
+    },
+    "css": {
+        "parser": {
+            "tailwindDirectives": true
+        }
+    },
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 80,
+        "trailingNewline": true
+    },
+    "javascript": {
+        "formatter": {
+            "semicolons": "always"
+        }
+    },
+    "assist": {
+        "enabled": true,
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
+    }
+}

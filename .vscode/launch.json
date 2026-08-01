@@ -7,46 +7,44 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug Mocha tests",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "stopOnEntry": false,
-            "args": [
-                "--timeout",
-                "0",
-                "--reporter",
-                "spec",
-                "--ui",
-                "tdd",
-                "--require",
-                "ts-node/register",
-                "./test/**/*.test.js"
-            ],
-            "cwd": "${workspaceRoot}",
-            "preLaunchTask": "ts-build",
-            "runtimeArgs": [
-                "--nolazy"
-            ],
+            "name": "Debug framework tests (Vitest)",
+            "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+            "args": ["run", "--no-file-parallelism"],
+            "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
+            "smartStep": true,
             "sourceMaps": true
         },
         {
             "type": "node",
-            "request": "attach",
-            "name": "Debug running server",
-            "address": "localhost",
-            "port": 4001,
-            "sourceMaps": true,
-            "restart": true
+            "request": "launch",
+            "name": "Debug example tests (Vitest)",
+            "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+            "args": ["run", "--no-file-parallelism"],
+            "cwd": "${workspaceFolder}/working-example",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "smartStep": true,
+            "sourceMaps": true
         },
         {
-            "name": "Debug running client",
+            "name": "Debug example client (Chrome)",
             "type": "chrome",
             "request": "launch",
-            "url": "http://localhost:3001",
-            "webRoot": "${workspaceFolder}",
-            "sourceMaps": true,
-            "breakOnLoad": true
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/working-example/src",
+            "sourceMaps": true
         },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug example server (n-web)",
+            "program": "${workspaceFolder}/working-example/dist-server/server.js",
+            "cwd": "${workspaceFolder}/working-example",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "sourceMaps": true
+        }
     ]
 }
