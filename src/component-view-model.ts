@@ -1,4 +1,4 @@
-import { comparer, observable } from "mobx";
+import { action, comparer, observable } from "mobx";
 import { ViewModel } from "./view-model.js";
 
 const PROPS_NOT_INJECTED =
@@ -10,6 +10,12 @@ export abstract class ComponentViewModel<
     public static override readonly $mobxOverrides: Record<string, unknown> = {
         _$props: observable.struct,
         retrieveProps: false,
+        // A true mutator, and the hook calls it from the useState initializer —
+        // i.e. inside an observer's render derivation. Methods are auto actions
+        // by default, which do not untrack inside a derivation, so mutating
+        // _$props there would trip enforceActions. A plain action always
+        // untracks and always allows the write.
+        _$applyProps: action.bound,
     };
 
     private _$props: TProps | null = null;

@@ -1,4 +1,4 @@
-import { comparer, observable } from "mobx";
+import { action, comparer, observable } from "mobx";
 import type { NavigationService, RawParams } from "./navigation.js";
 import type { RouteInfo } from "./route-info.js";
 import { ViewModel } from "./view-model.js";
@@ -18,6 +18,11 @@ export abstract class PageViewModel<
         _$rawQueryParams: observable.ref,
         _$paramsApplied: false,
         retrieveParams: false,
+        // A true mutator, and the hook calls it from the useState initializer —
+        // i.e. inside an observer's render derivation. See ComponentViewModel's
+        // _$applyProps override for why this must be a plain action, not the
+        // default auto action.
+        _$applyRawParams: action.bound,
     };
 
     private readonly _$navService: NavigationService | null = null;
