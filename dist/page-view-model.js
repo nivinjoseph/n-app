@@ -1,4 +1,4 @@
-import { comparer, observable } from "mobx";
+import { action, comparer, observable } from "mobx";
 import { ViewModel } from "./view-model.js";
 const NAV_NOT_INJECTED = "NavigationService not injected on PageViewModel. Pages must be resolved through usePageViewModel.";
 const ROUTE_NOT_INJECTED = "RouteInfo not injected on PageViewModel. Pages must be resolved through usePageViewModel.";
@@ -10,6 +10,11 @@ export class PageViewModel extends ViewModel {
         _$rawQueryParams: observable.ref,
         _$paramsApplied: false,
         retrieveParams: false,
+        // A true mutator, and the hook calls it from the useState initializer —
+        // i.e. inside an observer's render derivation. See ComponentViewModel's
+        // _$applyProps override for why this must be a plain action, not the
+        // default auto action.
+        _$applyRawParams: action.bound,
     };
     _$navService = null;
     _$routeInfo = null;

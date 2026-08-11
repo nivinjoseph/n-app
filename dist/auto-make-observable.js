@@ -1,4 +1,4 @@
-import { action, computed, makeObservable, observable, } from "mobx";
+import { _autoAction, computed, makeObservable, observable, } from "mobx";
 const SKIP_KEYS = new Set(["constructor"]);
 const REFRESH_WRAPPED = Symbol.for("@nivinjoseph/n-app.refresh-wrapped");
 export function autoMakeObservable(target) {
@@ -18,7 +18,14 @@ export function autoMakeObservable(target) {
                 annotations[key] = computed;
             }
             else if (typeof desc.value === "function")
-                annotations[key] = action.bound;
+                // `_autoAction` (what MobX's own makeAutoObservable uses), not
+                // `action`: `action` always runs untracked, so a getter or an
+                // observer render whose only state access is a method call ends
+                // up with no dependency on that state and is cached forever.
+                // An auto action untracks only when there is no enclosing
+                // derivation, so calls from outside still batch and are allowed
+                // to mutate under enforceActions: "always".
+                annotations[key] = _autoAction.bound;
         }
         proto = Object.getPrototypeOf(proto);
     }
